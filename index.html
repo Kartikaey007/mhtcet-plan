@@ -1459,6 +1459,33 @@ footer b{background:linear-gradient(90deg,var(--blue),var(--purple));-webkit-bac
 body{transition:background-color .4s ease,color .4s ease}
 
 /* ═══════════════ v20 — POLISH 2 ═══════════════ */
+/* ═══ V22: OMNI-SEARCH · HEATMAP · EXAM COUNTDOWN · ZEN MODE ═══ */
+.omni-wrap{position:relative;flex:1;min-width:200px;max-width:360px}
+#omniInput{width:100%;background:var(--panel2);border:1px solid var(--line);border-radius:99px;padding:7px 14px;font-family:var(--mono);font-size:12px;color:var(--tx);outline:none;transition:border-color .2s,box-shadow .2s}
+#omniInput:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(77,163,255,.15)}
+.omni-drop{position:absolute;top:calc(100% + 6px);left:0;right:0;z-index:900;background:linear-gradient(165deg,rgba(18,25,42,.98),rgba(10,15,28,.99));border:1px solid rgba(120,160,255,.2);border-radius:12px;box-shadow:0 20px 60px rgba(0,0,0,.6);max-height:320px;overflow-y:auto;display:none;backdrop-filter:blur(12px)}
+.omni-drop.on{display:block}
+.omni-item{display:flex;align-items:center;gap:8px;padding:8px 12px;font-size:12.5px;color:var(--dim);cursor:pointer}
+.omni-item:hover,.omni-item.sel{background:rgba(77,163,255,.12);color:var(--tx)}
+.omni-item .oi-ic{width:18px;text-align:center;flex-shrink:0}
+.omni-item .oi-k{font-family:var(--mono);font-size:9px;color:var(--faint);margin-left:auto;border:1px solid var(--line2);border-radius:5px;padding:1px 5px;flex-shrink:0}
+body.light .omni-drop{background:linear-gradient(165deg,#fff,#f2f6fb)}
+/* heatmap */
+.heat-grid{display:grid;grid-template-columns:repeat(20,1fr);gap:3px;margin-top:10px}
+.heat-col{display:grid;grid-template-rows:repeat(7,1fr);gap:3px}
+.heat-cell{aspect-ratio:1;border-radius:3px;background:var(--panel2);border:1px solid var(--line);transition:transform .12s ease}
+.heat-cell:hover{transform:scale(1.3);z-index:2}
+.heat-legend{display:flex;align-items:center;gap:5px;margin-top:10px;font-size:10px;color:var(--faint);font-family:var(--mono)}
+.heat-legend .hl{width:12px;height:12px;border-radius:3px}
+/* exam countdown chip */
+#examCd{color:var(--amber);border-color:rgba(210,153,34,.45);font-weight:700;cursor:default}
+/* zen mode */
+body.focus-zen .logo,body.focus-zen .tabs,body.focus-zen #omniWrap,body.focus-zen #lockBtn,body.focus-zen #themeBtn,body.focus-zen #resetBtn{display:none}
+body.focus-zen .topbar{justify-content:center;padding:8px}
+body.focus-zen main{max-width:860px}
+body.focus-zen .bg-fx .blob{opacity:.25}
+#zenExit{display:none}
+body.focus-zen #zenExit{display:flex;position:fixed;right:14px;top:14px;z-index:500}
 /* ═══ V21 MEGA-PACK: streak saver · PYQ radar · past-self · journal · exam-sim ═══ */
 .fm-card{width:min(400px,92vw);background:linear-gradient(165deg,rgba(22,30,52,.97),rgba(11,16,30,.98));border:1px solid rgba(120,160,255,.25);border-radius:18px;padding:28px 24px;text-align:center;box-shadow:0 30px 90px rgba(0,0,0,.7);animation:popIn .3s ease}
 body.light .fm-card{background:linear-gradient(165deg,#fff,#f2f6fb);border-color:rgba(77,163,255,.3)}
@@ -1564,6 +1591,7 @@ h2.sec::after{content:"";height:1px;flex:1;background:linear-gradient(90deg,rgba
 <body>
 <div id="scrollProg" aria-hidden="true"></div>
 <button id="toTop" title="Back to top" aria-label="Back to top">↑</button>
+<button class="btn" id="zenExit" style="position:fixed;right:14px;top:14px;z-index:500">✕ Exit zen</button>
 <div id="cursorGlow" aria-hidden="true"></div>
 <div id="updBar" style="display:none;position:fixed;bottom:64px;left:50%;transform:translateX(-50%);z-index:500;background:linear-gradient(135deg,rgba(59,130,246,.16),rgba(139,92,246,.14));border:1px solid rgba(120,160,255,.4);border-radius:12px;padding:10px 16px;font-size:13px;font-family:var(--sans);box-shadow:0 10px 30px rgba(0,0,0,.4);backdrop-filter:blur(10px);max-width:92vw;text-align:center;align-items:center;gap:10px">
   <span>🔄 <b>New update available</b> — tap to get the latest version</span>
@@ -1657,6 +1685,10 @@ h2.sec::after{content:"";height:1px;flex:1;background:linear-gradient(90deg,rgba
 
 <header class="topbar">
   <div class="logo"><span class="grad">KARTIKAEY'S MISSION MHT CET 140/200</span><small>MHT-CET TARGET 140/200 · BOARDS · JEE DRY-RUN // GOAL: MIT-WPU PUNE · CSE (AI&amp;ML)</small></div>
+  <div class="omni-wrap" id="omniWrap">
+    <input id="omniInput" placeholder="🔍 Search chapters, formulas, cards…" autocomplete="off" autocapitalize="off" spellcheck="false">
+    <div id="omniDrop" class="omni-drop"></div>
+  </div>
   <nav class="tabs" id="tabs">
     <button class="tab-btn active" data-tab="home">Home</button>
     <button class="tab-btn" data-tab="weekdays">Weekdays</button>
@@ -1675,8 +1707,10 @@ h2.sec::after{content:"";height:1px;flex:1;background:linear-gradient(90deg,rgba
     <button class="tab-btn" data-tab="guide">Guide</button>
     <button class="tab-btn" data-tab="her">💖 Her</button>
   </nav>
+  <button class="reset-btn" id="examCd" title="Days left to MHT-CET Attempt 1">⏳ —</button>
   <button class="reset-btn" id="lockBtn" title="Lock screen now">🔒 Lock</button>
   <button class="reset-btn" id="themeBtn" title="Toggle theme">🌙 Dark</button>
+  <button class="reset-btn" id="zenBtn" title="Zen focus mode — hide everything except your work">🧘 Zen</button>
   <button class="reset-btn" id="resetBtn" title="Reset all progress">RESET</button>
 </header>
 
@@ -2372,6 +2406,11 @@ h2.sec::after{content:"";height:1px;flex:1;background:linear-gradient(90deg,rgba
     <h4 style="margin:0 0 10px">📓 Auto journal <span style="font-family:var(--mono);font-size:10px;color:var(--faint)">your study diary writes itself</span></h4>
     <div id="journalBody" style="font-size:13px;color:var(--dim)">Your day's summary will appear here tonight.</div>
   </div>
+
+  <div class="panel" style="margin-top:14px">
+    <h4 style="margin:0 0 10px">🔥 Activity heatmap <span style="font-family:var(--mono);font-size:10px;color:var(--faint)">last 20 weeks · like GitHub — green = MCQs done</span></h4>
+    <div id="heatmapBody"></div>
+  </div>
 </section>
 
 <!-- ═══════════ FORMULA SHEET ═══════════ -->
@@ -2658,7 +2697,7 @@ h2.sec::after{content:"";height:1px;flex:1;background:linear-gradient(90deg,rgba
 </main>
 
 <footer>
-  BUILT FOR KARTIKAEY · <b id="ftrVer">BUILD 18-AUG-2026 · v20.5</b> · 16 AUG 2026 → EXAM DAY · PROGRESS SAVED IN YOUR BROWSER<br>
+  BUILT FOR KARTIKAEY · <b id="ftrVer">BUILD 18-AUG-2026 · v20.6</b> · 16 AUG 2026 → EXAM DAY · PROGRESS SAVED IN YOUR BROWSER<br>
   <b>KARTIKAEY'S MISSION · MHT CET 140/200 · MIT-WPU PUNE · CSE (AI &amp; ML)</b><br>
   ⚠ EXAM DATES ARE EXPECTED WINDOWS — ALWAYS CONFIRM ON OFFICIAL NOTICES
 </footer>
@@ -5312,6 +5351,7 @@ function tickCountdowns(){
     $(el).innerHTML = diff <= 0 ? 'DONE ✔' : d + '<span class="u"> d</span> : ' + h + '<span class="u"> h</span> : ' + m + '<span class="u"> m</span>';
   };
   fmt(CFG.a1, '#cd1'); fmt(CFG.a2, '#cd2'); fmt(new Date(2027, 1, 15, 10), '#cd3');
+  try{ updateExamCd(); }catch(e){}
 }
 
 /* ═══════════════ FOCUS TIMER ═══════════════ */
@@ -9435,6 +9475,7 @@ function renderStatsPage(){
   renderDrillPlan();
   renderPastSelf();
   renderJournal();
+  renderHeatmap();
 }
 
 /* ── BACKUP ── */
@@ -11706,7 +11747,7 @@ document.addEventListener('click', function(e){
 });
 
 /* ═══════════════ AUTO-UPDATE CHECKER ═══════════════ */
-const APP_VERSION = 'v20.5-2026-08-19';
+const APP_VERSION = 'v20.6-2026-08-19';
 (function(){
   // only when served over http(s) (GitHub Pages) — silent fail on file://
   if (!/^https?:$/.test(location.protocol)) return;
@@ -12906,6 +12947,125 @@ function mockWarnCheck(left){
   if (left < 60000 && m === 0 && lastWarn !== 0){ lastWarn = 0; examWarn('⏰ TIME\u2019S ALMOST UP'); }
 }
 
+/* ═══════════════ V22: OMNI-SEARCH · HEATMAP · COUNTDOWN · ZEN ═══════════════ */
+/* ── omni search ── */
+var __omniIndex = null;
+function omniIndex(){
+  if (__omniIndex) return __omniIndex;
+  var idx = [];
+  try{ CHAPTERS.forEach(function(c){ idx.push({ic: c.subj === 'P' ? '⚛️' : c.subj === 'C' ? '🧪' : '📐', t: c.id + ' · ' + c.name, k: 'ch', arg: c.id}); }); }catch(e){}
+  try{ ['P','C','M'].forEach(function(s){
+    var dict = s === 'P' ? FORMULAS_P : s === 'C' ? FORMULAS_C : FORMULAS_M;
+    Object.keys(dict).forEach(function(cid){
+      (dict[cid].items || []).slice(0, 6).forEach(function(it){ idx.push({ic:'🧮', t: it.n + ' — ' + it.f, k: 'formula', arg: cid}); });
+    });
+  }); }catch(e){}
+  try{ FLASH.slice(0, 300).forEach(function(f){ idx.push({ic:'🃏', t: f.f + ' — ' + f.b, k: 'flash', arg: null}); }); }catch(e){}
+  try{ vaultLines().slice(0, 200).forEach(function(l){ idx.push({ic:'💡', t: l.t + ' — ' + l.d, k: 'tab', arg: 'lab'}); }); }catch(e){}
+  try{ [['🏠 Home','home'],['📈 Stats','stats'],['⚔ Mock','mock'],['💖 Her','her'],['📖 Formulas','formulas'],['🧠 MCQs','practice'],['🃏 Flash','flash']].forEach(function(t){ idx.push({ic:t[0], t:t[1] + ' tab', k:'tab', arg:t[1]}); }); }catch(e){}
+  __omniIndex = idx;
+  return idx;
+}
+function omniRun(item){
+  try{
+    if (item.k === 'tab') switchTab(item.arg);
+    else if (item.k === 'ch'){ switchTab('practice'); openMcqTest(item.arg); }
+    else if (item.k === 'formula'){ switchTab('formulas'); }
+    else if (item.k === 'flash'){ switchTab('flash'); }
+  }catch(e){}
+  var inp = document.getElementById('omniInput');
+  if (inp) inp.value = '';
+  var drop = document.getElementById('omniDrop');
+  if (drop) drop.classList.remove('on');
+}
+function omniRender(q){
+  var drop = document.getElementById('omniDrop');
+  if (!drop) return;
+  q = (q || '').toLowerCase().trim();
+  var items = q ? omniIndex().filter(function(i){ return i.t.toLowerCase().indexOf(q) !== -1; }).slice(0, 12) : [];
+  if (!items.length){ drop.classList.remove('on'); return; }
+  drop.innerHTML = items.map(function(it, i){
+    return '<div class="omni-item' + (i === 0 ? ' sel' : '') + '" data-oi="' + i + '"><span class="oi-ic">' + it.ic + '</span><span>' + it.t + '</span><span class="oi-k">' + (it.k === 'ch' ? 'test' : it.k) + '</span></div>';
+  }).join('');
+  drop.classList.add('on');
+  drop._items = items;
+}
+document.addEventListener('input', function(e){
+  if (e.target.id === 'omniInput') omniRender(e.target.value);
+});
+document.addEventListener('keydown', function(e){
+  if (e.target.id !== 'omniInput') return;
+  var drop = document.getElementById('omniDrop');
+  var items = drop && drop._items ? drop._items : [];
+  var cur = drop ? drop.querySelector('.omni-item.sel') : null;
+  if (e.key === 'ArrowDown'){ e.preventDefault(); var nx = cur ? cur.nextElementSibling : drop.querySelector('.omni-item'); if (nx){ if (cur) cur.classList.remove('sel'); nx.classList.add('sel'); } }
+  else if (e.key === 'ArrowUp'){ e.preventDefault(); var pv = cur ? cur.previousElementSibling : null; if (pv){ cur.classList.remove('sel'); pv.classList.add('sel'); } }
+  else if (e.key === 'Enter'){ e.preventDefault(); if (cur && drop._items){ omniRun(drop._items[+cur.dataset.oi]); } }
+  else if (e.key === 'Escape'){ drop.classList.remove('on'); e.target.blur(); }
+});
+document.addEventListener('click', function(e){
+  if (e.target.closest('#omniWrap')) return;
+  var drop = document.getElementById('omniDrop');
+  if (drop && !e.target.closest('.omni-drop')) drop.classList.remove('on');
+  var oi = e.target.closest('.omni-item');
+  if (oi){
+    var drop2 = document.getElementById('omniDrop');
+    if (drop2 && drop2._items) omniRun(drop2._items[+oi.dataset.oi]);
+  }
+});
+
+/* ── activity heatmap (GitHub-style, last 20 weeks) ── */
+function renderHeatmap(){
+  var el = document.getElementById('heatmapBody'); if (!el) return;
+  var today = studyDayDate();
+  var end = new Date(today); end.setDate(end.getDate() + (6 - ((end.getDay() + 6) % 7))); // end of this week (Sunday)
+  var cols = [];
+  for (var w = 19; w >= 0; w--){
+    var colStart = new Date(end); colStart.setDate(end.getDate() - w * 7);
+    var cells = [];
+    for (var d = 0; d < 7; d++){
+      var dt = new Date(colStart); dt.setDate(colStart.getDate() + d);
+      var k = ymd(dt);
+      var mcq = (daily[k] && daily[k].mcq) || 0;
+      var foc = focuslog.filter(function(f){ return f.d === k; }).reduce(function(n, f){ return n + f.m; }, 0);
+      var lvl = 0;
+      if (mcq > 0 || foc > 0){
+        var score = mcq + foc / 15;
+        lvl = score >= 40 ? 4 : score >= 20 ? 3 : score >= 10 ? 2 : 1;
+      }
+      var label = dt.toLocaleDateString('en-IN', {weekday:'short', day:'numeric', month:'short'}) + ' · ' + mcq + ' MCQs · ' + Math.round(foc) + ' min';
+      cells.push('<div class="heat-cell" data-lvl="' + lvl + '" title="' + label + '"></div>');
+    }
+    cols.push('<div class="heat-col">' + cells.join('') + '</div>');
+  }
+  var colors = ['', '#1d3a2a', '#2d6a3f', '#3fb950', '#7ee08a'];
+  el.innerHTML = '<div class="heat-grid">' + cols.join('') + '</div>' +
+    '<div class="heat-legend"><span>Less</span>' + [0,1,2,3,4].map(function(l){ return '<span class="hl" style="background:' + (l ? colors[l] : 'var(--panel2)') + '"></span>'; }).join('') + '<span>More</span><span style="margin-left:auto">hover a cell for details</span></div>';
+  el.querySelectorAll('.heat-cell').forEach(function(cell){
+    var l = +cell.dataset.lvl;
+    if (l) cell.style.background = colors[l];
+  });
+}
+
+/* ── topbar exam countdown chip ── */
+function updateExamCd(){
+  var el = document.getElementById('examCd'); if (!el) return;
+  var diff = Math.max(0, CFG.a1 - Date.now());
+  var d = Math.floor(diff / 86400000);
+  el.textContent = '⏳ ' + d + 'd → Attempt 1';
+}
+
+/* ── zen focus mode ── */
+function zenToggle(){
+  document.body.classList.toggle('focus-zen');
+  var zb = document.getElementById('zenBtn');
+  if (zb) zb.textContent = document.body.classList.contains('focus-zen') ? '🌅 Exit zen' : '🧘 Zen';
+}
+document.addEventListener('click', function(e){
+  if (e.target.closest('#zenBtn')){ zenToggle(); return; }
+  if (e.target.closest('#zenExit')){ zenToggle(); return; }
+});
+
 /* ═══════════════ EXAM-DAY KIT ═══════════════ */
 const EXAM_KIT = [
   ['admit', '🎫 Admit card — downloaded + 2 printed copies'],
@@ -13041,6 +13201,7 @@ try{ pyqOptions(); }catch(e){}
 try{ renderPastSelf(); }catch(e){}
 try{ renderJournal(); }catch(e){}
 try{ renderSunday(); }catch(e){}
+try{ updateExamCd(); }catch(e){}
 setTimeout(function(){ try{ checkStreakSaver(); }catch(e){} }, 30000);
 try{ renderCsChips(); }catch(e){}
 lockApp();
@@ -13159,6 +13320,13 @@ function runUnlockScreen(){
   // hard failsafe: never leave the overlay stuck on screen
   setTimeout(function(){
     try{ clearInterval(iv); setP(100); finish(); }catch(e){}
+  }, 4200);
+}
+
+</script>
+</body>
+</html>
+nish(); }catch(e){}
   }, 4200);
 }
 
