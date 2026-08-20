@@ -1459,6 +1459,34 @@ footer b{background:linear-gradient(90deg,var(--blue),var(--purple));-webkit-bac
 body{transition:background-color .4s ease,color .4s ease}
 
 /* ═══════════════ v20 — POLISH 2 ═══════════════ */
+/* ═══ V21 MEGA-PACK: streak saver · PYQ radar · past-self · journal · exam-sim ═══ */
+.fm-card{width:min(400px,92vw);background:linear-gradient(165deg,rgba(22,30,52,.97),rgba(11,16,30,.98));border:1px solid rgba(120,160,255,.25);border-radius:18px;padding:28px 24px;text-align:center;box-shadow:0 30px 90px rgba(0,0,0,.7);animation:popIn .3s ease}
+body.light .fm-card{background:linear-gradient(165deg,#fff,#f2f6fb);border-color:rgba(77,163,255,.3)}
+.fm-emoji{font-size:40px;margin-bottom:8px}
+.fm-title{font-family:'Space Grotesk',var(--mono);font-size:18px;font-weight:700;color:var(--tx)}
+.fm-sub{font-size:12.5px;color:var(--dim);margin:6px 0 14px;line-height:1.5}
+.fm-timer{font-family:var(--mono);font-size:34px;font-weight:700;color:var(--blue);margin-bottom:10px}
+.fm-bar{height:8px;border-radius:99px;background:var(--panel2);overflow:hidden;margin-bottom:16px}
+.fm-bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#4da3ff,#bc8cff);border-radius:99px;transition:width 1s linear}
+/* PYQ radar */
+.pyq-bars{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+.pyq-row{display:flex;align-items:center;gap:10px;font-size:12.5px}
+.pyq-row .lbl{width:120px;flex-shrink:0;color:var(--dim);font-size:11.5px}
+.pyq-row .bar{flex:1}
+.pyq-row .pct{width:34px;text-align:right;font-family:var(--mono);font-size:11px;color:var(--blue)}
+.pyq-verdict{margin-top:12px;padding:10px 12px;border-radius:10px;font-size:12.5px;line-height:1.6;background:var(--panel2);border:1px solid var(--line)}
+/* past self */
+.ps-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin-top:8px}
+.ps-cell{background:var(--panel2);border:1px solid var(--line);border-radius:11px;padding:10px;text-align:center}
+.ps-cell .v{font-family:var(--mono);font-size:18px;font-weight:700;background:linear-gradient(90deg,#4da3ff,#bc8cff);-webkit-background-clip:text;background-clip:text;color:transparent}
+.ps-cell .k{font-size:10px;color:var(--faint);margin-top:3px;text-transform:uppercase;letter-spacing:.06em}
+.ps-record{display:flex;align-items:center;gap:8px;padding:9px 12px;border-radius:10px;margin-top:8px;font-size:12.5px;line-height:1.5;background:rgba(63,185,80,.08);border:1px solid rgba(63,185,80,.3);color:var(--green)}
+/* journal */
+.journal-entry{border-left:3px solid var(--blue);padding:10px 14px;margin-bottom:10px;background:var(--panel2);border-radius:0 10px 10px 0}
+.journal-entry .je-d{font-family:var(--mono);font-size:10.5px;color:var(--faint);letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px}
+.journal-entry .je-t{font-size:12.5px;line-height:1.6;color:var(--tx)}
+/* exam sim */
+.sim-warn{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:400;background:linear-gradient(135deg,rgba(248,81,73,.2),rgba(210,153,34,.15));border:1px solid rgba(248,81,73,.5);border-radius:14px;padding:16px 22px;font-family:var(--mono);font-size:16px;font-weight:700;color:var(--red);box-shadow:0 20px 60px rgba(0,0,0,.6);text-align:center;animation:popIn .25s ease}
 /* ═══ CURSOR GLOW (v20.1 — smooth, subtle) ═══ */
 #cursorGlow{
   position:fixed;top:0;left:0;width:340px;height:340px;border-radius:50%;
@@ -2185,6 +2213,14 @@ h2.sec::after{content:"";height:1px;flex:1;background:linear-gradient(90deg,rgba
     </div>
   </div>
   <div class="panel" style="margin-top:14px">
+    <h4 style="margin:0 0 10px">📡 PYQ pattern radar <span style="font-family:var(--mono);font-size:10px;color:var(--faint)">what MHT-CET actually asks per chapter</span></h4>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px">
+      <select id="pyqSel" style="background:var(--panel2);border:1px solid var(--line);color:var(--tx);border-radius:8px;padding:8px 10px;font-family:var(--mono);font-size:12.5px;flex:1;min-width:220px"></select>
+      <button class="btn small" id="pyqGo">🔎 Analyse</button>
+    </div>
+    <div id="pyqBody" style="font-size:12.5px;color:var(--dim)">Pick a chapter to see how MHT-CET actually questions it.</div>
+  </div>
+  <div class="panel" style="margin-top:14px">
     <h4 style="margin:0 0 10px;display:flex;align-items:center;gap:10px">📕 Error book <span style="font-family:var(--mono);font-size:10px;color:var(--faint)">auto-captured from mocks &amp; tests</span> <button class="btn small" data-vclear="1" style="margin-left:auto">Clear</button></h4>
     <div id="labEB"></div>
   </div>
@@ -2325,6 +2361,16 @@ h2.sec::after{content:"";height:1px;flex:1;background:linear-gradient(90deg,rgba
   <div class="panel" style="margin-top:14px">
     <h4 style="margin:0 0 10px">🗓 7-day drill plan <span style="font-family:var(--mono);font-size:10px;color:var(--faint)">auto-built from your weakest chapters</span></h4>
     <div id="drillBody" style="font-size:13px;color:var(--dim)">Answer more MCQs to unlock your personalized drill plan.</div>
+  </div>
+
+  <div class="panel" style="margin-top:14px">
+    <h4 style="margin:0 0 10px">🥇 Beat your past self <span style="font-family:var(--mono);font-size:10px;color:var(--faint)">records · streaks · session compare</span></h4>
+    <div id="pastSelf" style="font-size:13px;color:var(--dim)">Study a bit more — your personal records appear here.</div>
+  </div>
+
+  <div class="panel" style="margin-top:14px">
+    <h4 style="margin:0 0 10px">📓 Auto journal <span style="font-family:var(--mono);font-size:10px;color:var(--faint)">your study diary writes itself</span></h4>
+    <div id="journalBody" style="font-size:13px;color:var(--dim)">Your day's summary will appear here tonight.</div>
   </div>
 </section>
 
@@ -2612,13 +2658,26 @@ h2.sec::after{content:"";height:1px;flex:1;background:linear-gradient(90deg,rgba
 </main>
 
 <footer>
-  BUILT FOR KARTIKAEY · <b id="ftrVer">BUILD 18-AUG-2026 · v20.4</b> · 16 AUG 2026 → EXAM DAY · PROGRESS SAVED IN YOUR BROWSER<br>
+  BUILT FOR KARTIKAEY · <b id="ftrVer">BUILD 18-AUG-2026 · v20.5</b> · 16 AUG 2026 → EXAM DAY · PROGRESS SAVED IN YOUR BROWSER<br>
   <b>KARTIKAEY'S MISSION · MHT CET 140/200 · MIT-WPU PUNE · CSE (AI &amp; ML)</b><br>
   ⚠ EXAM DATES ARE EXPECTED WINDOWS — ALWAYS CONFIRM ON OFFICIAL NOTICES
 </footer>
 
 <div id="ctxMenu"></div>
 <div id="toast"></div>
+
+<!-- ═══════════ STREAK SAVER / FOCUS BLOCKER ═══════════ -->
+<div id="focusModal" style="display:none;position:fixed;inset:0;z-index:999999;background:rgba(5,8,16,.82);backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:20px">
+  <div class="fm-card">
+    <div class="fm-emoji" id="fmEmoji">⏳</div>
+    <div class="fm-title" id="fmTitle">2-minute focus first</div>
+    <div class="fm-sub" id="fmSub">Your streak is on the line. Do 2 focused minutes before the fun stuff.</div>
+    <div class="fm-timer" id="fmTimer">02:00</div>
+    <div class="fm-bar"><i id="fmBar"></i></div>
+    <button class="btn grad" id="fmDone" style="display:none">✅ Done — go have fun, you earned it</button>
+    <button class="btn small" id="fmCancel" style="color:var(--faint)">✕ Skip anyway (streak loses a day)</button>
+  </div>
+</div>
 
 
 
@@ -5452,6 +5511,7 @@ document.addEventListener('click', e => {
     trackDaily('mcq', 1);
     renderMcqTest(); updateMcqCard(cid); updateMcqGlobal(); renderWeekly(); renderLab();
     refreshLight();
+    maybeRecordToast();
     toast(wasRight ? '✔ Correct!' : '✘ Not quite — added to error book');
     return;
   }
@@ -8374,6 +8434,7 @@ function mockTick(){
     if (!MOCK._drillAt) MOCK._drillAt = Date.now() + 40000 + Math.random() * 50000;
     if (Date.now() >= MOCK._drillAt){ MOCK._drillAt = Date.now() + 40000 + Math.random() * 50000; showDrillPop(); }
   }
+  if (MOCK.secs.length > 1) mockWarnCheck(left);
   if (left <= 0){
     if (MOCK.secs.length > 1 && MOCK.sec < MOCK.secs.length - 1) advanceSection(true);
     else submitMock();
@@ -9372,6 +9433,8 @@ function renderStatsPage(){
   renderStatsMockChart();
   renderProjection();
   renderDrillPlan();
+  renderPastSelf();
+  renderJournal();
 }
 
 /* ── BACKUP ── */
@@ -11643,7 +11706,7 @@ document.addEventListener('click', function(e){
 });
 
 /* ═══════════════ AUTO-UPDATE CHECKER ═══════════════ */
-const APP_VERSION = 'v20.4-2026-08-19';
+const APP_VERSION = 'v20.5-2026-08-19';
 (function(){
   // only when served over http(s) (GitHub Pages) — silent fail on file://
   if (!/^https?:$/.test(location.protocol)) return;
@@ -12632,6 +12695,217 @@ function injectRevenge(arr, subjs){
   });
 }
 
+/* ═══════════════ V21 MEGA-PACK ═══════════════ */
+/* ── 1. PYQ PATTERN RADAR ── */
+const PYQ_PATTERNS = {
+  P1:{mix:'2 numericals (Coulomb/field) + 1 theory (Gauss/dipole) + 1 conceptual', topics:['Coulomb force & superposition','E-field of point/sheet/line','Gauss law applications','Dipole (axial/equatorial)','Flux & closed surfaces'], weight:9},
+  P2:{mix:'2 numericals (V, C) + 1 theory (capacitors) + 1 dielectric Q', topics:['Potential & work done','Capacitance (plate, series, parallel)','Energy & dielectrics','Potential gradient E = -dV/dr'], weight:4},
+  P3:{mix:'2 numericals (Ohm/power) + 1 theory (drift/Kirchhoff) + 1 circuit Q', topics:['Drift velocity & current','Resistance & combinations','Kirchhoff laws & circuits','Power & energy (kWh)','Potentiometer/bridge'], weight:6},
+  P4:{mix:'2 numericals (Lorentz/radius) + 1 theory (helix/cyclotron) + 1 field Q', topics:['Force on charge in B','Circular motion & radius','Cyclotron & helix','Field of wire/loop/solenoid','Parallel wires force'], weight:5},
+  P5:{mix:'1 theory (dia/para/ferro) + 1 numerical (torque)', topics:['Magnetic materials','Torque on magnet','Earth magnetism','Hysteresis'], weight:1},
+  P6:{mix:'2 numericals (flux/emf) + 1 theory (Lenz) + 1 application', topics:['Flux & Faraday law','Lenz law & energy','Inductance & energy','Eddy currents / AC generator','Motional emf'], weight:3},
+  P7:{mix:'1 numerical (impedance) + 1 theory (resonance) + 1 conceptual (power)', topics:['RMS & peak values','Series LCR & resonance','Power factor & wattless current','Transformer'], weight:2},
+  P8:{mix:'1 theory (spectrum) + 1 conceptual', topics:['EM wave spectrum','Properties of EM waves','Uses (radio→gamma)'], weight:2},
+  P9:{mix:'2 numericals (mirror/lens) + 1 theory (TIR) + 1 prism Q', topics:['Mirror & lens formula','TIR & critical angle','Prism & deviation','Refraction & speed','Optical instruments'], weight:5},
+  P10:{mix:'1 numerical (fringe) + 1 theory (interference/diffraction) + 1 conceptual (polarisation)', topics:['Young\u2019s double slit','Diffraction & fringe','Polarisation','Wave nature of light'], weight:2},
+  P11:{mix:'2 numericals (photoelectric/de Broglie) + 1 theory (Einstein)', topics:['Photoelectric equation','Stopping potential & threshold','de Broglie wavelength','Photon energy 1240/λ'], weight:3},
+  P12:{mix:'1 numerical (Bohr) + 1 theory (spectra) + 1 conceptual', topics:['Bohr model & radii','Energy levels & spectra','Hydrogen series'], weight:4},
+  P13:{mix:'1 numerical (decay/half-life) + 1 theory (binding energy) + 1 conceptual', topics:['Radioactive decay & half-life','Binding energy & mass defect','Fission vs fusion','Nuclear reactors'], weight:3},
+  P14:{mix:'1 numerical (diode) + 2 theory (semiconductor/logic)', topics:['Intrinsic/extrinsic','p-n junction & diode','Zener & rectifier','Logic gates & truth tables'], weight:5},
+  C1:{mix:'2 numericals (molarity/π) + 1 theory (Raoult) + 1 conceptual (colligative)', topics:['Concentration units','Raoult & ideal solutions','Colligative properties','van\u2019t Hoff factor & π'], weight:3},
+  C2:{mix:'2 numericals (Nernst/Faraday) + 1 theory (cell) + 1 conceptual (corrosion)', topics:['Galvanic cells & E°','Nernst equation','Electrolysis & Faraday laws','Conductance & Kohlrausch','Corrosion & batteries'], weight:5},
+  C3:{mix:'2 numericals (rate/half-life) + 1 theory (order) + 1 conceptual (catalyst)', topics:['Rate laws & order','First-order & half-life','Arrhenius & activation energy','Catalysis & collision theory'], weight:4},
+  C4:{mix:'1 theory (lanthanides) + 1 conceptual (K2Cr2O7/KMnO4)', topics:['d-block properties','Lanthanides & actinides','KMnO4 / K2Cr2O7 reactions','Alloys & uses'], weight:5},
+  C5:{mix:'1 theory (IUPAC) + 1 conceptual (isomerism) + 1 numerical (CFSE-ish)', topics:['Werner theory & IUPAC','Isomerism','Crystal field & magnetism','Applications (EDTA, haemoglobin)'], weight:4},
+  C6:{mix:'2 theory (SN1/SN2) + 1 numerical (Finkelstein) + 1 conceptual', topics:['SN1 vs SN2','Finkelstein & Swarts','Wurtz & Grignard','Elimination (Zaitsev)','Aryl halide reactivity'], weight:4},
+  C7:{mix:'2 theory (oxidation/Lucas) + 1 conceptual (phenol)', topics:['Alcohol preparation','Oxidation & Lucas test','Phenol acidity & reactions','Ethers (Williamson)'], weight:4},
+  C8:{mix:'2 theory (aldol/Cannizzaro) + 1 numerical (IUPAC) + 1 conceptual (distinguish)', topics:['Aldol & cross-aldol','Cannizzaro reaction','Oxidation of aldehydes','Fehling/Tollen tests','IUPAC naming'], weight:5},
+  C9:{mix:'2 theory (acidity/amide) + 1 conceptual (diazonium) + 1 numerical', topics:['Carboxylic acid acidity','Amines & basicity','Diazonium salts (Sandmeyer)','Amide preparation/reduction'], weight:5},
+  C10:{mix:'1 theory (carbohydrates) + 1 conceptual (proteins) + 1 numerical', topics:['Carbohydrates & glucose','Proteins & amino acids','Vitamins & enzymes','Nucleic acids'], weight:4},
+  C11:{mix:'1 theory (polymers) + 1 conceptual (addition vs condensation)', topics:['Addition polymers','Condensation polymers','Biodegradable polymers','Rubber & fibres'], weight:4},
+  C12:{mix:'1 theory (drugs) + 1 conceptual (soaps/cleansers)', topics:['Drug classification','Antacids & antihistamines','Soaps vs detergents','Preservatives'], weight:3},
+  M1:{mix:'1 numerical (function) + 1 theory (types) + 1 conceptual (composite)', topics:['Types of functions','Composite & inverse','Equivalence relations'], weight:3},
+  M2:{mix:'1 numerical (principal value) + 1 theory (properties)', topics:['Principal values','Properties of inverse trig','Domain & range'], weight:3},
+  M3:{mix:'1 numerical (operations) + 1 theory (types) + 1 conceptual', topics:['Matrix operations','Symmetric/skew-symmetric','Transpose & elementary'], weight:4},
+  M4:{mix:'1 numerical (det) + 1 theory (properties) + 1 application (area/Cramer)', topics:['Determinant evaluation','Properties','Cramer\u2019s rule & area'], weight:4},
+  M5:{mix:'1 numerical (continuity) + 1 theory (differentiability) + 1 conceptual', topics:['Continuity check','Differentiability','Composite & implicit'], weight:4},
+  M6:{mix:'2 numericals (max/min/rate) + 1 theory (applications)', topics:['Rate of change','Maxima & minima','Tangents & normals','Approximations'], weight:5},
+  M7:{mix:'2 numericals (substitution/parts) + 1 theory (definite) + 1 conceptual', topics:['Basic integrals','Substitution & by-parts','Definite integrals & properties','Special integrals'], weight:6},
+  M8:{mix:'1 numerical (area) + 1 conceptual (volume)', topics:['Area under curves','Volume of revolution'], weight:3},
+  M9:{mix:'1 numerical (solve) + 1 theory (order/degree) + 1 conceptual', topics:['Order & degree','Variable separable','Linear DE & homogeneous'], weight:4},
+  M10:{mix:'1 numerical (dot/cross) + 1 theory (properties) + 1 conceptual', topics:['Dot & cross products','Projections','Triple product'], weight:4},
+  M11:{mix:'1 numerical (lines/planes) + 1 theory (angles) + 1 conceptual', topics:['Line equations','Plane equations','Angles & distances','Skew lines'], weight:4},
+  M12:{mix:'1 numerical (LPP) + 1 theory (corner points)', topics:['Feasible region','Corner point method','Objective function'], weight:2},
+  M13:{mix:'1 numerical (probability) + 1 theory (Bayes) + 1 conceptual (binomial)', topics:['Conditional & Bayes','Binomial distribution','Random variables & mean/variance'], weight:4}
+};
+function pyqOptions(){
+  const sel = document.getElementById('pyqSel'); if (!sel) return;
+  sel.innerHTML = CHAPTERS.filter(c => PYQ_PATTERNS[c.id]).map(c => '<option value="' + c.id + '">' + c.id + ' · ' + c.name + '</option>').join('');
+}
+function pyqAnalyse(cid){
+  const el = document.getElementById('pyqBody'); if (!el) return;
+  const p = PYQ_PATTERNS[cid];
+  if (!p){ el.innerHTML = '<span style="color:var(--faint)">No pattern data for this chapter yet.</span>'; return; }
+  const max = Math.max.apply(null, p.topics.map((t, i) => p.topics.length - i));
+  el.innerHTML =
+    '<div class="pyq-verdict">🎯 <b>How MHT-CET asks ' + cid + ':</b> ' + p.mix + ' · ≈ ' + p.weight + ' marks in the paper.</div>' +
+    '<div class="pyq-bars">' + p.topics.map(function(t, i){
+      const v = p.topics.length - i;
+      return '<div class="pyq-row"><span class="lbl">' + t + '</span><div class="bar"><i style="width:' + Math.round(100 * v / max) + '%"></i></div><span class="pct">' + (v === p.topics.length ? 'hot 🔥' : (v > p.topics.length / 2 ? 'high' : 'some')) + '</span></div>';
+    }).join('') + '</div>' +
+    '<div style="font-size:11px;color:var(--faint);margin-top:10px">Priority order top→bottom — revise the top topics first, they carry the marks.</div>';
+}
+document.addEventListener('click', function(e){
+  if (e.target.closest('#pyqGo')){
+    const sel = document.getElementById('pyqSel');
+    if (sel && sel.value) pyqAnalyse(sel.value);
+    return;
+  }
+});
+
+/* ── 2. BEAT YOUR PAST SELF ── */
+function pastSelfStats(){
+  const hist = Object.keys(daylog).filter(k => daylog[k] > 0).map(k => daylog[k]);
+  const mcqDays = Object.keys(daily).filter(k => daily[k] && daily[k].mcq > 0).map(k => daily[k].mcq);
+  return {
+    bestTasks: hist.length ? Math.max.apply(null, hist) : 0,
+    bestMcqDay: mcqDays.length ? Math.max.apply(null, mcqDays) : 0,
+    activeDays: Object.keys(daylog).filter(k => daylog[k] > 0).length,
+    bestMock: bestMock() || 0,
+    streak: computeStreak()
+  };
+}
+function renderPastSelf(){
+  const el = document.getElementById('pastSelf'); if (!el) return;
+  const ps = pastSelfStats();
+  if (!ps.activeDays && !ps.bestMock){
+    el.innerHTML = '<span style="font-size:12.5px;color:var(--faint)">Study a bit more — your personal records appear here.</span>';
+    return;
+  }
+  const todayMcq = mcqTodayCount();
+  const todayTasks = daylog[studyDayKey()] || 0;
+  const isRecordMcq = todayMcq > 0 && todayMcq >= ps.bestMcqDay;
+  const isRecordTasks = todayTasks > 0 && todayTasks >= ps.bestTasks;
+  el.innerHTML =
+    '<div class="ps-grid">' +
+    '<div class="ps-cell"><div class="v">' + ps.bestMcqDay + '</div><div class="k">best MCQs / day</div></div>' +
+    '<div class="ps-cell"><div class="v">' + ps.bestTasks + '</div><div class="k">best tasks / day</div></div>' +
+    '<div class="ps-cell"><div class="v">' + (ps.bestMock || '—') + '/200</div><div class="k">best mock</div></div>' +
+    '<div class="ps-cell"><div class="v">' + ps.activeDays + '</div><div class="k">active days</div></div>' +
+    '</div>' +
+    (isRecordMcq || isRecordTasks ? '<div class="ps-record">🔥 NEW PERSONAL RECORD today — ' + (isRecordMcq ? todayMcq + ' MCQs' : '') + (isRecordMcq && isRecordTasks ? ' + ' : '') + (isRecordTasks ? todayTasks + ' tasks' : '') + '! You\u2019re beating the best version of yourself.</div>' : '') +
+    '<div style="font-size:11px;color:var(--faint);margin-top:8px">Today: ' + todayMcq + ' MCQs · ' + todayTasks + ' tasks · ' + computeStreak() + '-day streak.</div>';
+}
+function maybeRecordToast(){
+  try{
+    const todayMcq = mcqTodayCount();
+    const todayTasks = daylog[studyDayKey()] || 0;
+    const ps = pastSelfStats();
+    if (todayMcq > 0 && todayMcq === ps.bestMcqDay && todayMcq >= 5){
+      toast('🔥 NEW RECORD — ' + todayMcq + ' MCQs in a day!');
+    }
+  }catch(e){}
+}
+
+/* ── 3. AUTO JOURNAL ── */
+function journalEntryFor(k){
+  const d = daily[k] || {};
+  const tasks = daylog[k] || 0;
+  const foc = focuslog.filter(f => f.d === k && isFinite(f.m)).reduce((n, f) => n + f.m, 0);
+  const acc = (() => { return null; })();
+  const parts = k.split('-');
+  const dt = new Date(+parts[0], +parts[1] - 1, +parts[2]);
+  const label = dt.toLocaleDateString('en-IN', {weekday:'long', day:'numeric', month:'short'});
+  if (!(d.mcq || d.mock || tasks || foc)) return null;
+  const lines = [];
+  lines.push('📅 ' + label + ' — ' + tasks + ' task' + (tasks === 1 ? '' : 's') + ' ticked · ' + d.mcq + ' MCQs · ' + d.mock + ' mock' + (d.mock === 1 ? '' : 's') + ' · ' + Math.round(foc) + ' min focus.');
+  if (d.mock) lines.push('⚔ Mock ' + d.mock + ' — check the autopsy for mark recovery.');
+  const weak = weakestChapters(1)[0];
+  if (weak && weak.acc !== null) lines.push('🎯 Weakest right now: ' + weak.id + ' (' + weak.acc + '%) — next session, hit it first.');
+  if (d.mcq > 30) lines.push('💪 Big MCQ day — volume builds speed.');
+  else if (d.mcq > 0 && d.mcq <= 10) lines.push('🌱 Light MCQ day — consistency still counts.');
+  if (foc >= 180) lines.push('⏱ Deep focus day (' + Math.round(foc) + ' min) — that\u2019s the habit that wins.');
+  lines.push('→ Tomorrow: ' + (weak ? 'start with ' + weak.id + ' ' + weak.name + ', then your weakest subject block.' : 'keep the rhythm — same slots, same focus.'));
+  return '<div class="journal-entry"><div class="je-d">' + label + '</div><div class="je-t">' + lines.join('<br>') + '</div></div>';
+}
+function renderJournal(){
+  const el = document.getElementById('journalBody'); if (!el) return;
+  const keys = Object.keys(daylog).filter(k => /^\d{4}-\d{2}-\d{2}$/.test(k)).sort().slice(-7);
+  const entries = keys.map(journalEntryFor).filter(Boolean).reverse();
+  el.innerHTML = entries.length ? entries.join('') : '<span style="font-size:12.5px;color:var(--faint)">Your day\u2019s summary appears here automatically — tick tasks or answer MCQs and it starts writing.</span>';
+}
+
+/* ── 4. STREAK SAVER / FOCUS BLOCKER ── */
+var focusBlock = {active: false, intv: null, end: 0};
+function streakDanger(){
+  // studied in last 24h?
+  const now = Date.now();
+  const d = new Date(now - 24 * 3600 * 1000);
+  const k = ymd(d);
+  return !(daylog[k] > 0 || focuslog.some(f => f.d >= k) || (daily[k] && (daily[k].mcq || daily[k].mock || daily[k].focus)));
+}
+function focusBlockStart(){
+  const m = document.getElementById('focusModal');
+  if (!m || focusBlock.active) return;
+  focusBlock.active = true;
+  focusBlock.end = Date.now() + 120000;
+  m.style.display = 'flex';
+  const t = document.getElementById('fmTimer'), b = document.getElementById('fmBar');
+  const done = document.getElementById('fmDone');
+  done.style.display = 'none';
+  focusBlock.intv = setInterval(function(){
+    const left = Math.max(0, focusBlock.end - Date.now());
+    if (t) t.textContent = '0' + Math.floor(left / 60000) + ':' + pad(Math.floor(left % 60000 / 1000));
+    if (b) b.style.width = (100 * (1 - left / 120000)) + '%';
+    if (left <= 0){
+      clearInterval(focusBlock.intv); focusBlock.intv = null;
+      if (done) done.style.display = '';
+      if (t) t.textContent = '02:00';
+      if (b) b.style.width = '100%';
+    }
+  }, 500);
+}
+function focusBlockClose(){
+  const m = document.getElementById('focusModal');
+  if (m) m.style.display = 'none';
+  if (focusBlock.intv){ clearInterval(focusBlock.intv); focusBlock.intv = null; }
+  focusBlock.active = false;
+}
+document.addEventListener('click', function(e){
+  if (e.target.closest('#fmDone') || e.target.closest('#fmCancel')){ focusBlockClose(); return; }
+});
+function checkStreakSaver(){
+  try{
+    if (streakDanger()){
+      const m = document.getElementById('focusModal');
+      if (m && !focusBlock.active && !m.style.display || m.style.display === 'none'){
+        focusBlockStart();
+      }
+    }
+  }catch(e){}
+}
+
+/* ── 5. EXAM-SIM WARNINGS ── */
+var lastWarn = null;
+function examWarn(msg){
+  try{
+    var w = document.createElement('div');
+    w.className = 'sim-warn';
+    w.textContent = msg;
+    document.body.appendChild(w);
+    setTimeout(function(){ if (w.parentNode) w.parentNode.removeChild(w); }, 3500);
+    try{ if (navigator.vibrate) navigator.vibrate([200, 100, 200]); }catch(e){}
+  }catch(e){}
+}
+/* patched into mockTick: warnings at 5 min & 1 min */
+function mockWarnCheck(left){
+  if (!left) return;
+  const m = Math.floor(left / 60000);
+  if (m === 5 && lastWarn !== 5){ lastWarn = 5; examWarn('⏰ 5 MINUTES LEFT — finish this question, then sweep the unanswered ones'); }
+  if (m === 1 && lastWarn !== 1){ lastWarn = 1; examWarn('⏰ 1 MINUTE LEFT — mark anything blank, every attempt counts'); }
+  if (left < 60000 && m === 0 && lastWarn !== 0){ lastWarn = 0; examWarn('⏰ TIME\u2019S ALMOST UP'); }
+}
+
 /* ═══════════════ EXAM-DAY KIT ═══════════════ */
 const EXAM_KIT = [
   ['admit', '🎫 Admit card — downloaded + 2 printed copies'],
@@ -12763,7 +13037,11 @@ try{ renderWeekStrip(); }catch(e){}
 try{ renderCoach(); }catch(e){}
 try{ radioUI(); }catch(e){}
 try{ renderHerDist(); }catch(e){}
+try{ pyqOptions(); }catch(e){}
+try{ renderPastSelf(); }catch(e){}
+try{ renderJournal(); }catch(e){}
 try{ renderSunday(); }catch(e){}
+setTimeout(function(){ try{ checkStreakSaver(); }catch(e){} }, 30000);
 try{ renderCsChips(); }catch(e){}
 lockApp();
 runLoadingScreen();
