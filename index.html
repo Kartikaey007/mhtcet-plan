@@ -1459,6 +1459,16 @@ footer b{background:linear-gradient(90deg,var(--blue),var(--purple));-webkit-bac
 body{transition:background-color .4s ease,color .4s ease}
 
 /* ═══════════════ v20 — POLISH 2 ═══════════════ */
+/* ═══ V23: SHIELD · STARS · SPEED DRILL ═══ */
+#shieldBox{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:6px}
+.mstars{font-size:11px;letter-spacing:1px;color:var(--amber);margin-left:6px}
+.sd-card{width:min(480px,94vw);background:linear-gradient(165deg,rgba(22,30,52,.97),rgba(11,16,30,.98));border:1px solid rgba(120,160,255,.25);border-radius:16px;padding:18px 20px;box-shadow:0 30px 90px rgba(0,0,0,.7);max-height:80vh;overflow-y:auto}
+body.light .sd-card{background:linear-gradient(165deg,#fff,#f2f6fb)}
+.sd-head{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.sd-timer{font-family:var(--mono);font-size:20px;font-weight:700;color:var(--amber);margin-left:auto}
+.sd-bar{height:8px;border-radius:99px;background:var(--panel2);overflow:hidden;margin-bottom:10px}
+.sd-bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#4da3ff,#bc8cff,#ff8ab5);border-radius:99px;transition:width .25s linear}
+.sd-score{font-family:var(--mono);font-size:16px;font-weight:700;color:var(--green);margin-bottom:10px}
 /* ═══ V22: OMNI-SEARCH · HEATMAP · EXAM COUNTDOWN · ZEN MODE ═══ */
 .omni-wrap{position:relative;flex:1;min-width:200px;max-width:360px}
 #omniInput{width:100%;background:var(--panel2);border:1px solid var(--line);border-radius:99px;padding:7px 14px;font-family:var(--mono);font-size:12px;color:var(--tx);outline:none;transition:border-color .2s,box-shadow .2s}
@@ -1885,6 +1895,7 @@ h2.sec::after{content:"";height:1px;flex:1;background:linear-gradient(90deg,rgba
           <div class="pulse-head"><b>📚 Syllabus covered</b><span class="pulse-val" id="pulseSyllabusVal">0%</span></div>
           <div class="bar"><i id="pulseSyllabusBar" style="width:0%"></i></div>
           <div class="pulse-sub" id="pulseSyllabusSub">0 / 48 chapters</div>
+          <div class="pulse-sub" id="pulseMastery" style="color:var(--amber)"></div>
         </div>
       </div>
       <div class="pulse-footer">
@@ -1893,6 +1904,7 @@ h2.sec::after{content:"";height:1px;flex:1;background:linear-gradient(90deg,rgba
         <span id="pulseNight" style="font-size:11.5px;color:var(--faint)"></span>
         <button class="btn small" id="pulseSunday" style="display:none;color:var(--amber);border-color:var(--amber)">🗓 Sunday review due — start</button>
       </div>
+      <div id="shieldBox"></div>
     </div>
 
     <div class="panel" id="coachPanel" style="margin-top:14px">
@@ -2697,13 +2709,23 @@ h2.sec::after{content:"";height:1px;flex:1;background:linear-gradient(90deg,rgba
 </main>
 
 <footer>
-  BUILT FOR KARTIKAEY · <b id="ftrVer">BUILD 18-AUG-2026 · v20.6</b> · 16 AUG 2026 → EXAM DAY · PROGRESS SAVED IN YOUR BROWSER<br>
+  BUILT FOR KARTIKAEY · <b id="ftrVer">BUILD 18-AUG-2026 · v20.7</b> · 16 AUG 2026 → EXAM DAY · PROGRESS SAVED IN YOUR BROWSER<br>
   <b>KARTIKAEY'S MISSION · MHT CET 140/200 · MIT-WPU PUNE · CSE (AI &amp; ML)</b><br>
   ⚠ EXAM DATES ARE EXPECTED WINDOWS — ALWAYS CONFIRM ON OFFICIAL NOTICES
 </footer>
 
 <div id="ctxMenu"></div>
 <div id="toast"></div>
+
+<!-- ═══════════ 60-SECOND SPEED DRILL ═══════════ -->
+<div id="sdModal" style="display:none;position:fixed;inset:0;z-index:999990;background:rgba(5,8,16,.85);backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:20px">
+  <div class="sd-card">
+    <div class="sd-head"><span style="font-weight:700">⚡ 60-second drill</span><span class="sd-timer" id="sdTimer">60s</span><button class="btn small" id="sdClose">✕</button></div>
+    <div class="sd-bar"><i id="sdBar"></i></div>
+    <div class="sd-score" id="sdScore">✔ 0</div>
+    <div id="sdQ"></div>
+  </div>
+</div>
 
 <!-- ═══════════ STREAK SAVER / FOCUS BLOCKER ═══════════ -->
 <div id="focusModal" style="display:none;position:fixed;inset:0;z-index:999999;background:rgba(5,8,16,.82);backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:20px">
@@ -5056,11 +5078,13 @@ function renderMcqGrid(){
     const vBtns = vn
       ? `<button class="chk-btn" data-vplay="${c.id}" title="Play voice note (${vn.dur}s)">🎤 ▶ ${vn.dur}s</button><button class="chk-btn" data-vdel="${c.id}" title="Delete voice note">🗑</button>`
       : `<button class="chk-btn" data-vrec="${c.id}" title="Record a voice explanation (Feynman)">🎤</button>`;
+    const ms = (function(){ try{ return masteryStarsHTML(c.id); }catch(e){ return ''; } })();
     return `<div class="chapter-card ${done===c.mcqs.length?'checked':''}" data-cid="${c.id}">
-      <div class="cc-head"><span class="cc-id ${c.subj}">${c.id}</span><span class="cc-name">${c.name}</span><span class="cc-prog">${done}/${c.mcqs.length} <b>${pct}%</b></span></div>
+      <div class="cc-head"><span class="cc-id ${c.subj}">${c.id}</span><span class="cc-name">${c.name}${ms}</span><span class="cc-prog">${done}/${c.mcqs.length} <b>${pct}%</b></span></div>
       <div class="cc-actions">
         <button class="chk-btn" data-mcq="${c.id}">▶ Test</button>
         <button class="chk-btn notes-btn" data-note="${c.id}">📝 Notes</button>
+        <button class="chk-btn" data-sd="${c.id}" title="60-second speed drill">⚡ 60s</button>
         ${vBtns}
         <a class="chk-btn ext-btn" href="${EXT(c.name)}" target="_blank" rel="noopener">🔗 External</a>
       </div>
@@ -5334,6 +5358,7 @@ function computeStreak(){
   const studied = dd => daylog[ymd(dd)] > 0 || focuslog.some(f => f.d === ymd(dd) && isFinite(f.m) && f.m > 0);
   if (!studied(d)) d.setDate(d.getDate() - 1);
   while (studied(d)){ streak++; d.setDate(d.getDate() - 1); }
+  try{ if (streak === 0) streak = shieldBoosted(); }catch(e){}
   return streak;
 }
 function checkMilestones(pct){
@@ -8764,10 +8789,45 @@ document.addEventListener('visibilitychange', function(){ if (document.hidden &&
 let deck = [];
 let deckIdx = 0;
 let deckSide = 'f';
-let deckState = {};      // cardKey -> 'known' | 'again'
+let deckState = {};      // cardKey -> {b: box 1-4, d: due 'YYYY-MM-DD'} (migrated from 'known'/'again')
 let flashCh = 'all';     // chapter id | 'all' | 'quick'
 let flashSubj = 'All';
 let flashOrder = [];     // indices of current filtered deck (real shuffle)
+/* ── SRS (Leitner) helpers ── */
+const SRS_INTERVAL = [1, 1, 2, 7, 30]; // box 1..4 → days until due
+function srsDueCount(list){
+  const today = ymd(studyDayDate());
+  return list.filter(d => {
+    const s = deckState[d.key];
+    if (!s) return true;
+    if (typeof s === 'string') return true;
+    const box = s.b || 1;
+    return box === 1 || !s.d || s.d <= today;
+  }).length;
+}
+function srsMigrate(){
+  let changed = false;
+  Object.keys(deckState).forEach(k => {
+    const v = deckState[k];
+    if (typeof v === 'string'){
+      deckState[k] = v === 'known' ? {b: 3, d: ymd(studyDayDate())} : {b: 1, d: ymd(studyDayDate())};
+      changed = true;
+    } else if (!v || typeof v.b !== 'number'){
+      deckState[k] = {b: 1, d: ymd(studyDayDate())};
+      changed = true;
+    }
+  });
+  if (changed) LS.set('kv8_deck', deckState);
+}
+function srsAnswer(key, knew){
+  const cur = deckState[key];
+  const box = cur && typeof cur === 'object' && cur.b ? cur.b : 1;
+  const nb = knew ? Math.min(4, box + 1) : 1;
+  const due = new Date(studyDayDate());
+  due.setDate(due.getDate() + SRS_INTERVAL[nb]);
+  deckState[key] = {b: nb, d: ymd(due)};
+  LS.set('kv8_deck', deckState);
+}
 function buildDeck(){
   deck = [];
   FLASH.forEach((f, i) => deck.push({key:'fl'+i, f:f.f, b:f.b, s:f.s, ch:'quick', chName:'⚡ QUICK FORMULAS'}));
@@ -8810,13 +8870,21 @@ function renderFlashChips(){
 }
 function buildFlashOrder(shuffleIt){
   const list = flashDeck();
-  flashOrder = list.map(function(_, i){ return i; });
-  if (shuffleIt) flashOrder = shuffle(flashOrder);
+  const today = ymd(studyDayDate());
+  const due = [], rest = [];
+  list.forEach(function(d, i){
+    const s = deckState[d.key];
+    const isDue = !s || typeof s === 'string' || (s.b === 1) || !s.d || s.d <= today;
+    (isDue ? due : rest).push(i);
+  });
+  flashOrder = due.concat(rest);
+  if (shuffleIt){ due.sort(function(){ return Math.random() - .5; }); flashOrder = due.concat(rest); }
   deckIdx = 0;
   deckSide = 'f';
 }
 function renderFlash(){
   renderFlashChips();
+  try{ srsMigrate(); }catch(e){}
   // safety: purge deck-state keys that no longer exist in the deck
   const valid = {};
   deck.forEach(d => { if (deckState[d.key]) valid[d.key] = deckState[d.key]; });
@@ -8824,9 +8892,10 @@ function renderFlash(){
   const list = flashDeck();
   if (!flashOrder.length || flashOrder.length !== list.length) buildFlashOrder(false);
   if (deckIdx >= list.length) deckIdx = 0;
-  const known = list.filter(d => deckState[d.key] === 'known').length;
-  const again = list.filter(d => deckState[d.key] === 'again').length;
-  $('#flashStats').textContent = list.length + ' cards · Q ' + (list.length ? (deckIdx+1)+'/'+list.length : '0/0') + ' · ✓ ' + known + ' known · ↻ ' + again + ' review';
+  const known = list.filter(d => { const s = deckState[d.key]; return s && (typeof s === 'object' ? s.b >= 3 : s === 'known'); }).length;
+  const again = list.filter(d => { const s = deckState[d.key]; return s && (typeof s === 'object' ? s.b === 1 : s === 'again'); }).length;
+  const dueN = srsDueCount(list);
+  $('#flashStats').textContent = list.length + ' cards · Q ' + (list.length ? (deckIdx+1)+'/'+list.length : '0/0') + ' · ✓ ' + known + ' known · ↻ ' + again + ' review · ⏰ ' + dueN + ' due today';
   if (!list.length){ $('#flashCard').innerHTML = '<p style="color:var(--faint)">No cards in this selection yet.</p>'; return; }
   const d = list[flashOrder[deckIdx % flashOrder.length]];
   const subj = d.s === 'P' ? 'PHYSICS' : d.s === 'C' ? 'CHEMISTRY' : d.s === 'M' ? 'MATHS' : d.s === 'X' ? 'CLASS 11' : 'MIXED';
@@ -8873,8 +8942,7 @@ document.addEventListener('click', e => {
     const list = flashDeck();
     if (!list.length) return;
     const d = list[flashOrder[deckIdx % flashOrder.length]];
-    deckState[d.key] = fk.dataset.fknow;
-    LS.set('kv8_deck', deckState);
+    srsAnswer(d.key, fk.dataset.fknow === 'known');
     deckIdx++; deckSide = 'f'; renderFlash(); renderLab(); return;
   }
   const fsh = e.target.closest('[data-fshuf]');
@@ -9556,6 +9624,7 @@ function refreshLight(){
   renderWeekly(); renderQueue(); renderTodayCmd(); renderHomePulse();
   renderHomeGems(); renderHomeNextWeek(); renderWeekStrip();
   renderCoach(); radioUI();
+  renderShieldUI();
   const st = document.getElementById('tab-stats');
   if (st && st.classList.contains('active')) renderStatsPage();
 }
@@ -11747,7 +11816,7 @@ document.addEventListener('click', function(e){
 });
 
 /* ═══════════════ AUTO-UPDATE CHECKER ═══════════════ */
-const APP_VERSION = 'v20.6-2026-08-19';
+const APP_VERSION = 'v20.7-2026-08-19';
 (function(){
   // only when served over http(s) (GitHub Pages) — silent fail on file://
   if (!/^https?:$/.test(location.protocol)) return;
@@ -12017,6 +12086,11 @@ function renderHomePulse(){
   const sv = document.getElementById('pulseSyllabusVal'); if (sv) sv.textContent = pct + '%';
   const sb = document.getElementById('pulseSyllabusBar'); if (sb) sb.style.width = pct + '%';
   const ss = document.getElementById('pulseSyllabusSub'); if (ss) ss.textContent = sy.done + ' / ' + sy.total + ' chapters';
+  try{
+    var mc = masteryCount();
+    var mEl = document.getElementById('pulseMastery');
+    if (mEl) mEl.textContent = '★ ' + mc.c3 + 'x3 · ' + mc.c2 + 'x2 · ' + mc.c1 + 'x1';
+  }catch(e){}
   const ded = dedication();
   const db = document.getElementById('dedBtn'); if (db) db.textContent = ded ? '💖 Dedicated to Aarnavi ✓' : '💖 Dedicate today to Aarnavi';
   const dm = document.getElementById('pulseDedMsg');
@@ -13064,6 +13138,160 @@ function zenToggle(){
 document.addEventListener('click', function(e){
   if (e.target.closest('#zenBtn')){ zenToggle(); return; }
   if (e.target.closest('#zenExit')){ zenToggle(); return; }
+});
+
+/* ═══════════════ V23: STREAK SHIELD · MASTERY STARS · SPEED DRILL ═══════════════ */
+function shieldWeekKey(){
+  var d = studyDayDate();
+  var day = (d.getDay() + 6) % 7;
+  var m = new Date(d); m.setDate(m.getDate() - day);
+  return m.getFullYear() + '-W' + String(Math.floor((m - new Date(m.getFullYear(), 0, 1)) / 604800000) + 1).padStart(2, '0');
+}
+function shieldState(){ return LS.get('kv_shield', {wk: null, prev: 0, at: null}); }
+function shieldUsedThisWeek(){ var s = shieldState(); return s.wk === shieldWeekKey(); }
+function useShield(){
+  if (shieldUsedThisWeek()){ toast('🛡 Shield already used this week'); return; }
+  var prev = computeStreakRaw();
+  LS.set('kv_shield', {wk: shieldWeekKey(), prev: prev, at: studyDayKey()});
+  toast('🛡 Shield used — streak frozen at ' + prev + ' day' + (prev === 1 ? '' : 's') + ' for this week');
+  refreshLight(); renderStatsPage();
+}
+function computeStreakRaw(){
+  const key = studyDayKey();
+  const parts = key.split('-');
+  const d = new Date(parseInt(parts[0],10), parseInt(parts[1],10) - 1, parseInt(parts[2],10));
+  let streak = 0;
+  const studied = dd => daylog[ymd(dd)] > 0 || focuslog.some(f => f.d === ymd(dd) && isFinite(f.m) && f.m > 0);
+  if (!studied(d)) d.setDate(d.getDate() - 1);
+  while (studied(d)){ streak++; d.setDate(d.getDate() - 1); }
+  return streak;
+}
+function shieldBoosted(){
+  if (!shieldUsedThisWeek()) return 0;
+  var raw = computeStreakRaw();
+  if (raw > 0) return 0;
+  var s = shieldState();
+  return (s.prev || 1) > 0 ? (s.prev || 1) : 1;
+}
+function renderShieldUI(){
+  var el = document.getElementById('shieldBox'); if (!el) return;
+  if (shieldUsedThisWeek()){
+    el.innerHTML = '<span style="color:var(--green)">🛡 Shield active this week — your streak is protected (frozen at ' + (shieldState().prev || 1) + ').</span>';
+  } else {
+    el.innerHTML = '<button class="btn small" id="shieldUse" style="color:var(--amber);border-color:var(--amber)">🛡 Use streak shield (once/week)</button>' +
+      '<span style="font-size:11px;color:var(--faint)">Saves your streak if a day slips — one use per week.</span>';
+  }
+}
+document.addEventListener('click', function(e){
+  if (e.target.closest('#shieldUse')){ useShield(); return; }
+});
+function chapterMastery(cid){
+  const c = CH_BY_ID[cid];
+  if (!c || !c.mcqs || !c.mcqs.length) return null;
+  let done = 0, correct = 0;
+  c.mcqs.forEach((q, qi) => {
+    const v = mcqState[cid + ':' + qi];
+    if (v !== undefined){ done++; if (v === q.a) correct++; }
+  });
+  if (!done) return null;
+  const comp = done / c.mcqs.length;
+  const acc = correct / done;
+  let stars = 0;
+  if (comp >= .8 && acc >= .75) stars = 3;
+  else if (comp >= .6 && acc >= .6) stars = 2;
+  else if (comp >= .3 && acc >= .4) stars = 1;
+  return {comp: Math.round(comp * 100), acc: Math.round(acc * 100), stars: stars};
+}
+function masteryStarsHTML(cid){
+  const m = chapterMastery(cid);
+  if (!m) return '';
+  return '<span class="mstars" title="' + m.comp + '% done · ' + m.acc + '% acc">' + (m.stars === 3 ? '★★★' : m.stars === 2 ? '★★☆' : m.stars === 1 ? '★☆☆' : '☆☆☆') + '</span>';
+}
+function masteryCount(){
+  let c3 = 0, c2 = 0, c1 = 0, done = 0;
+  CHAPTERS.forEach(c => {
+    const m = chapterMastery(c.id);
+    if (!m) return;
+    done++;
+    if (m.stars === 3) c3++; else if (m.stars === 2) c2++; else if (m.stars === 1) c1++;
+  });
+  return {c3: c3, c2: c2, c1: c1, done: done, total: CHAPTERS.length};
+}
+var sd = {active: false, intv: null, end: 0, correct: 0, asked: 0, cid: null, order: [], idx: 0};
+function sdBest(cid){ const b = LS.get('kv13_drill', {}); return b[cid] || 0; }
+function sdStart(cid){
+  const c = CH_BY_ID[cid];
+  if (!c || !c.mcqs || !c.mcqs.length){ toast('No questions in this chapter'); return; }
+  sd = {active: true, intv: null, end: Date.now() + 60000, correct: 0, asked: 0, cid: cid, order: shuffle(c.mcqs.map((q, i) => i)), idx: 0};
+  const m = document.getElementById('sdModal');
+  if (m) m.style.display = 'flex';
+  sdRender();
+  sd.intv = setInterval(function(){
+    const left = Math.max(0, sd.end - Date.now());
+    const t = document.getElementById('sdTimer');
+    if (t) t.textContent = Math.ceil(left / 1000) + 's';
+    const b = document.getElementById('sdBar');
+    if (b) b.style.width = (100 * (1 - left / 60000)) + '%';
+    if (left <= 0){ clearInterval(sd.intv); sdFinish(); }
+  }, 250);
+}
+function sdRender(){
+  const c = CH_BY_ID[sd.cid];
+  const qi = sd.order[sd.idx % sd.order.length];
+  const q = c.mcqs[qi];
+  const order = optOrder(sd.cid + ':' + qi, q.o.length);
+  const box = document.getElementById('sdQ');
+  if (box){
+    box.innerHTML = '<div style="font-size:11px;color:var(--faint);font-family:var(--mono);margin-bottom:6px">' + sd.cid + ' · ' + c.name + ' · Q ' + (sd.asked + 1) + '</div>' +
+      '<div style="font-size:14px;line-height:1.5;margin-bottom:10px">' + q.q + '</div>' +
+      order.map(function(oi){
+        return '<button class="opt" data-sdo="' + oi + '" style="display:block;width:100%;margin-bottom:6px">' + optLetter(oi, order) + '. ' + q.o[oi] + '</button>';
+      }).join('');
+  }
+  const sc = document.getElementById('sdScore');
+  if (sc) sc.textContent = '✔ ' + sd.correct;
+}
+document.addEventListener('click', function(e){
+  const sdo = e.target.closest('[data-sdo]');
+  if (sdo && sd.active){
+    const c = CH_BY_ID[sd.cid];
+    const qi = sd.order[sd.idx % sd.order.length];
+    const q = c && c.mcqs ? c.mcqs[qi] : null;
+    if (q){
+      sd.asked++;
+      if (parseInt(sdo.dataset.sdo, 10) === q.a) sd.correct++;
+    }
+    sd.idx++;
+    if (sd.active) sdRender();
+    return;
+  }
+  if (e.target.closest('#sdClose') || e.target.closest('#sdDone')){
+    const m = document.getElementById('sdModal');
+    if (m) m.style.display = 'none';
+    if (sd.intv){ clearInterval(sd.intv); sd.intv = null; }
+    sd.active = false;
+    return;
+  }
+});
+function sdFinish(){
+  sd.active = false;
+  const box = document.getElementById('sdQ');
+  const prev = sdBest(sd.cid);
+  const isBest = sd.correct > prev;
+  if (isBest){ const b = LS.get('kv13_drill', {}); b[sd.cid] = sd.correct; LS.set('kv13_drill', b); }
+  if (box){
+    box.innerHTML = '<div style="text-align:center;padding:10px 0">' +
+      '<div style="font-size:34px;font-weight:700;font-family:var(--mono);color:var(--blue)">' + sd.correct + '</div>' +
+      '<div style="font-size:13px;color:var(--dim)">correct in 60 seconds' + (sd.asked ? ' · ' + Math.round(100 * sd.correct / sd.asked) + '% accuracy' : '') + '</div>' +
+      (isBest ? '<div style="color:var(--green);font-size:13px;margin-top:6px">🔥 NEW PERSONAL BEST (was ' + prev + ')</div>' : '<div style="color:var(--faint);font-size:12px;margin-top:6px">Best: ' + prev + ' · beat it next time</div>') +
+      '<button class="btn" id="sdAgain" style="margin-top:12px">🔁 Go again</button>' +
+      '<button class="btn small" id="sdDone" style="margin-left:8px">Done</button></div>';
+  }
+}
+document.addEventListener('click', function(e){
+  if (e.target.closest('#sdAgain')){ sdStart(sd.cid); return; }
+  const sdd = e.target.closest('[data-sd]');
+  if (sdd){ sdStart(sdd.dataset.sd); return; }
 });
 
 /* ═══════════════ EXAM-DAY KIT ═══════════════ */
