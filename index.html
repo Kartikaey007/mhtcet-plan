@@ -1499,6 +1499,13 @@ h2.sec::after{content:"";height:1px;flex:1;background:linear-gradient(90deg,rgba
 .bg-fx::after{content:"";position:absolute;inset:0;background-image:linear-gradient(rgba(120,160,255,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(120,160,255,.04) 1px,transparent 1px);background-size:44px 44px;pointer-events:none}
 /* toast top corner style option */
 #toast{backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+/* ── coach K + revision radio + distance + revenge ── */
+.coach-item{display:flex;gap:10px;align-items:flex-start;padding:9px 12px;border-radius:10px;background:var(--panel2);border:1px solid var(--line);margin-bottom:8px;line-height:1.55}
+.coach-item .ci{font-size:15px;flex-shrink:0}
+.radio-now{display:flex;gap:10px;align-items:flex-start;padding:12px;border-radius:10px;background:var(--panel2);border:1px dashed var(--line2);line-height:1.55}
+.dist-track{height:10px;border-radius:99px;background:var(--panel2);border:1px solid var(--line);overflow:hidden}
+.dist-track i{display:block;height:100%;background:linear-gradient(90deg,#4da3ff,#bc8cff,#ff8ab5);border-radius:99px;transition:width .6s cubic-bezier(.22,1,.36,1)}
+.rev-tag{display:inline-block;font-family:var(--mono);font-size:9px;color:var(--amber);border:1px solid rgba(210,153,34,.5);border-radius:99px;padding:1px 7px;margin-left:6px;letter-spacing:.08em;animation:softBlink 1.6s ease infinite}
 /* ── home fillers: daily gems + next week ── */
 .wk-strip-wrap{margin-top:14px;padding-top:12px;border-top:1px dashed var(--line)}
 .wk-strip-label{font-family:var(--mono);font-size:10px;letter-spacing:.1em;color:var(--faint);text-transform:uppercase;margin-bottom:8px}
@@ -1828,6 +1835,17 @@ h2.sec::after{content:"";height:1px;flex:1;background:linear-gradient(90deg,rgba
         <span id="pulseNight" style="font-size:11.5px;color:var(--faint)"></span>
         <button class="btn small" id="pulseSunday" style="display:none;color:var(--amber);border-color:var(--amber)">🗓 Sunday review due — start</button>
       </div>
+    </div>
+
+    <div class="panel" id="coachPanel" style="margin-top:14px">
+      <h4 style="margin:0 0 10px">🧠 Coach K — your daily read <span style="font-family:var(--mono);font-size:10px;color:var(--faint)">insights from your real data</span></h4>
+      <div id="coachBody" style="font-size:12.5px;color:var(--dim)">Loading your patterns…</div>
+    </div>
+
+    <div class="panel" id="radioPanel" style="margin-top:14px">
+      <h4 style="margin:0 0 6px">🎧 Revision radio <span style="font-family:var(--mono);font-size:10px;color:var(--faint)">listen to your notes — walks, breaks, tuition rides</span></h4>
+      <div id="radioBody" style="font-size:12.5px;color:var(--dim)">—</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px" id="radioCtl"></div>
     </div>
 
     <div class="panel">
@@ -2578,6 +2596,12 @@ h2.sec::after{content:"";height:1px;flex:1;background:linear-gradient(90deg,rgba
   </div>
 
   <div class="panel" style="margin-top:14px">
+  <div class="panel" style="margin-top:14px">
+    <h4 style="margin:0 0 6px">🛤 Distance to Aarnavi <span style="font-family:var(--mono);font-size:10px;color:var(--faint)">your score shrinks the km — 140/200 = same campus</span></h4>
+    <div id="herDist"></div>
+  </div>
+
+  <div class="panel" style="margin-top:14px">
     <h4 style="margin:0 0 4px">📤 Send Aarnavi my progress <span style="font-family:var(--mono);font-size:10px;color:var(--faint)">one tap → WhatsApp · proof of the grind</span></h4>
     <div class="a-card" id="aCardPreview"></div>
     <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px">
@@ -2592,7 +2616,7 @@ h2.sec::after{content:"";height:1px;flex:1;background:linear-gradient(90deg,rgba
 </main>
 
 <footer>
-  BUILT FOR KARTIKAEY · <b id="ftrVer">BUILD 18-AUG-2026 · v20.2</b> · 16 AUG 2026 → EXAM DAY · PROGRESS SAVED IN YOUR BROWSER<br>
+  BUILT FOR KARTIKAEY · <b id="ftrVer">BUILD 18-AUG-2026 · v20.3</b> · 16 AUG 2026 → EXAM DAY · PROGRESS SAVED IN YOUR BROWSER<br>
   <b>KARTIKAEY'S MISSION · MHT CET 140/200 · MIT-WPU PUNE · CSE (AI &amp; ML)</b><br>
   ⚠ EXAM DATES ARE EXPECTED WINDOWS — ALWAYS CONFIRM ON OFFICIAL NOTICES
 </footer>
@@ -8296,13 +8320,16 @@ function startMock(mode){
   const secRanges = [];
   if (cfg.secs === 2){
     // Section 1 = Physics + Chemistry (90 min) · Section 2 = Maths (90 min) — like the real paper
-    paper = weightedPaper('P', cfg.n.P).concat(weightedPaper('C', cfg.n.C));
-    secRanges.push([0, paper.length]);
-    const m0 = paper.length;
-    paper = paper.concat(weightedPaper('M', cfg.n.M));
-    secRanges.push([m0, paper.length]);
+    let s1 = weightedPaper('P', cfg.n.P).concat(weightedPaper('C', cfg.n.C));
+    let s2 = weightedPaper('M', cfg.n.M);
+    injectRevenge(s1, ['P','C']);
+    injectRevenge(s2, ['M']);
+    paper = s1.concat(s2);
+    secRanges.push([0, s1.length]);
+    secRanges.push([s1.length, paper.length]);
   } else {
     ['P','C','M'].forEach(s => paper = paper.concat(weightedPaper(s, cfg.n[s])));
+    injectRevenge(paper, ['P','C','M']);
     secRanges.push([0, paper.length]);
   }
   clearSavedMock();
@@ -8389,7 +8416,7 @@ function renderMockQ(){
     else secEl.textContent = 'MOCK';
   }
   $('#mockSubj').textContent = c.subj === 'P' ? 'PHYSICS' : c.subj === 'C' ? 'CHEMISTRY' : 'MATHS';
-  $('#mockChapter').textContent = c.name;
+  $('#mockChapter').innerHTML = c.name + (p.rev ? ' <span class="rev-tag">⚔ REVENGE</span>' : '');
   $('#mockQ').textContent = q.q;
   const chosen = MOCK.ans[MOCK.idx];
   const order = optOrder(p.cid + ':' + p.qi, q.o.length);
@@ -8447,6 +8474,17 @@ function submitMock(){
     const order = optOrder(it.cid + ':' + it.qi, q.o.length);
     return `<div class="tn-ex"><div class="ex-q"><b>${it.cid} · ${CH_BY_ID[it.cid].name}:</b> ${q.q}<br><span style="color:var(--red)">Your answer: ${optLetter(MOCK.ans[i], order)}</span> · <span style="color:var(--green)">Correct: ${optLetter(q.a, order)}</span></div><div class="ex-s"><b>Why:</b> ${q.x}</div></div>`;
   }).join('') || '<p style="color:var(--green)">Perfect — zero wrong answers! 🏆</p>';
+  // save revenge targets — worst chapters by wrong answers
+  try{
+    const byCh = {};
+    MOCK.paper.forEach((it, i) => {
+      const c = CH_BY_ID[it.cid]; const q = c && c.mcqs[it.qi];
+      if (!q || MOCK.ans[i] === undefined || MOCK.ans[i] === q.a) return;
+      byCh[it.cid] = (byCh[it.cid] || 0) + 1;
+    });
+    const tops = Object.keys(byCh).sort((a, b) => byCh[b] - byCh[a]).slice(0, 3);
+    localStorage.setItem('kv12_revenge', JSON.stringify(tops));
+  }catch(e){}
   mockRecord(score, max, MOCK.mode);
   if (/^w\d+$/.test(MOCK.mode)){
     const wmBest = LS.get('kv10_wmock', {});
@@ -9417,6 +9455,7 @@ function refreshLight(){
   renderRings(); renderStats(); renderBoard(); renderChips();
   renderWeekly(); renderQueue(); renderTodayCmd(); renderHomePulse();
   renderHomeGems(); renderHomeNextWeek(); renderWeekStrip();
+  renderCoach(); radioUI();
   const st = document.getElementById('tab-stats');
   if (st && st.classList.contains('active')) renderStatsPage();
 }
@@ -11546,6 +11585,7 @@ function renderHer(){
   if (note) note.value = d.note || '';
   var ns = document.getElementById('herNoteStatus'); if (ns) ns.textContent = '';
   renderAarnaviCard();
+  renderHerDist();
 }
 document.addEventListener('click', function(e){
   if (e.target.closest('#herNameSave')){
@@ -11607,7 +11647,7 @@ document.addEventListener('click', function(e){
 });
 
 /* ═══════════════ AUTO-UPDATE CHECKER ═══════════════ */
-const APP_VERSION = 'v20.2-2026-08-19';
+const APP_VERSION = 'v20.3-2026-08-19';
 (function(){
   // only when served over http(s) (GitHub Pages) — silent fail on file://
   if (!/^https?:$/.test(location.protocol)) return;
@@ -12434,6 +12474,168 @@ document.addEventListener('click', function(e){
   }
 });
 
+/* ═══════════════ COACH K — rule-based study coach ═══════════════ */
+function coachInsights(){
+  const out = [];
+  try{
+    const pr = projectScore();
+    if (pr && mockHist.length >= 2){
+      if (pr.slope >= 1) out.push({ic:'📈', t:'Trend up: +' + pr.slope.toFixed(1) + ' marks per mock. Keep the loop — mock → autopsy → fix.'});
+      else if (pr.slope < 0) out.push({ic:'📉', t:'Trend is dipping. Run the autopsy → notes → retest loop on your worst chapter this week.'});
+    }
+  }catch(e){}
+  try{
+    const acc = {P:0, C:0, M:0}, cnt = {P:0, C:0, M:0};
+    Object.keys(mcqState).forEach(function(k){
+      const p = k.split(':');
+      const c = CH_BY_ID[p[0]]; if (!c || !c.mcqs[parseInt(p[1], 10)]) return;
+      cnt[c.subj]++;
+      if (mcqState[k] === c.mcqs[parseInt(p[1], 10)].a) acc[c.subj]++;
+    });
+    const rows = ['P','C','M'].map(function(s){ return {s: s, n: cnt[s], a: cnt[s] ? Math.round(100*acc[s]/cnt[s]) : null}; }).filter(function(r){ return r.n >= 5; });
+    if (rows.length >= 2){
+      const sorted = rows.slice().sort(function(a, b){ return a.a - b.a; });
+      if (sorted[sorted.length-1].a - sorted[0].a >= 20){
+        out.push({ic:'🎯', t: SUBJ_NAME[sorted[0].s] + ' is your weakest subject (' + sorted[0].a + '% vs ' + sorted[sorted.length-1].a + '% in ' + SUBJ_NAME[sorted[sorted.length-1].s] + '). A 30-min block a day for a week fixes it.'});
+      }
+    }
+  }catch(e){}
+  try{
+    const k = studyDayKey();
+    const activeToday = (daylog[k]||0) > 0 || focuslog.some(function(f){ return f.d === k; }) || (daily[k] && (daily[k].mcq || daily[k].mock || daily[k].focus));
+    if (!activeToday && new Date().getHours() >= 19) out.push({ic:'⚠️', t:'Nothing logged today yet. 15 minutes of flashcards saves your streak AND your consistency.'});
+  }catch(e){}
+  try{
+    const ns = nightSessions().length;
+    if (ns >= 5) out.push({ic:'🌙', t:'2 AM Squad veteran (' + ns + ' night sessions). Sleep 7h+ — your brain files memories while you sleep.'});
+  }catch(e){}
+  try{
+    const wc = weekCounts(); const g = weeklyGoal();
+    if (wc.mcq >= g.mcq && wc.focus >= g.focus) out.push({ic:'🏆', t:'Weekly targets already hit! Consider the 🔥 hard preset next week — you can handle it.'});
+  }catch(e){}
+  try{
+    if (eb.length >= 10) out.push({ic:'📕', t: eb.length + ' errors in the book — the Sunday sweep converts them into marks.'});
+  }catch(e){}
+  if (!out.length) out.push({ic:'💡', t:'Consistency beats intensity: 30 focused minutes today beats 3 distracted hours tomorrow.'});
+  return out.slice(0, 3);
+}
+function renderCoach(){
+  const el = document.getElementById('coachBody'); if (!el) return;
+  const ins = coachInsights();
+  el.innerHTML = ins.map(function(i){ return '<div class="coach-item"><span class="ci">' + i.ic + '</span><span>' + i.t + '</span></div>'; }).join('');
+}
+
+/* ═══════════════ REVISION RADIO (text-to-speech) ═══════════════ */
+var radio = {q: [], idx: 0, playing: false, rate: 0.95};
+function radioBuild(){
+  var pool = [];
+  try{ FLASH.slice(0, 400).forEach(function(f){ pool.push({ic:'🃏', t: f.f + ' — ' + f.b}); }); }catch(e){}
+  try{ vaultLines().slice(0, 250).forEach(function(l){ pool.push({ic:'💡', t: l.t + ' — ' + l.d}); }); }catch(e){}
+  try{ formulaPool().slice(0, 250).forEach(function(fm){ pool.push({ic:'🧮', t: fm.n + ': ' + fm.f}); }); }catch(e){}
+  // daily-shuffled 20-item playlist
+  var d = studyDayDate();
+  var seed = Math.floor((d - new Date(d.getFullYear(), 0, 0)) / 86400000);
+  for (var i = pool.length - 1; i > 0; i--){ var j = (seed + i * 7) % (i + 1); var tmp = pool[i]; pool[i] = pool[j]; pool[j] = tmp; }
+  radio.q = pool.slice(0, 20);
+  radio.idx = 0;
+}
+function radioSpeak(){
+  if (!('speechSynthesis' in window)){ toast('🎧 Voice not supported in this browser'); return; }
+  if (!radio.q.length) radioBuild();
+  var item = radio.q[radio.idx];
+  if (!item) return;
+  try{
+    var u = new SpeechSynthesisUtterance(item.t);
+    u.rate = radio.rate || 0.95;
+    u.pitch = 1;
+    u.onend = function(){
+      radio.idx++;
+      if (radio.idx >= radio.q.length){ radio.playing = false; radioUI(); return; }
+      radioSpeak();
+    };
+    u.onerror = function(){ radio.playing = false; radioUI(); };
+    speechSynthesis.cancel();
+    speechSynthesis.speak(u);
+    radio.playing = true;
+  }catch(e){ toast('🎧 Could not start voice'); }
+  radioUI();
+}
+function radioStop(){ try{ speechSynthesis.cancel(); }catch(e){} radio.playing = false; radioUI(); }
+function radioToggle(){
+  if (radio.playing){ try{ speechSynthesis.pause(); }catch(e){} radio.playing = false; }
+  else { try{ speechSynthesis.resume(); }catch(e){} if (!radio.q.length) radioBuild(); radioSpeak(); }
+  radioUI();
+}
+function radioNext(){
+  radio.idx = Math.min(radio.idx + 1, (radio.q.length || 20) - 1);
+  if (radio.playing) radioSpeak(); else radioUI();
+}
+function radioRate(delta){
+  radio.rate = Math.min(1.3, Math.max(0.6, (radio.rate || 0.95) + delta));
+  if (radio.playing) radioSpeak();
+  radioUI();
+}
+function radioUI(){
+  var body = document.getElementById('radioBody'); if (!body) return;
+  var ctl = document.getElementById('radioCtl'); if (!ctl) return;
+  if (!radio.q.length) radioBuild();
+  var item = radio.q[radio.idx];
+  var icon = item ? item.ic : '🎧';
+  body.innerHTML = '<div class="radio-now"><span style="font-size:16px">' + icon + '</span> <span>' + (item ? item.t : 'Playlist ready — hit play') + '</span></div>' +
+    '<div style="font-family:var(--mono);font-size:10.5px;color:var(--faint);margin-top:6px">Item ' + (radio.idx + 1) + ' / ' + radio.q.length + ' · rate ' + radio.rate.toFixed(2) + 'x' + (radio.playing ? ' · 🔊 playing' : ' · ⏸ paused') + '</div>';
+  ctl.innerHTML =
+    '<button class="btn small" id="rPlay">' + (radio.playing ? '⏸ Pause' : '▶ Play') + '</button>' +
+    '<button class="btn small" id="rNext">⏭ Next</button>' +
+    '<button class="btn small" id="rSlower">🐢 0.9x</button>' +
+    '<button class="btn small" id="rFaster">🐇 1.1x</button>' +
+    '<button class="btn small" id="rStop" style="color:var(--red);border-color:var(--red)">■ Stop</button>';
+}
+document.addEventListener('click', function(e){
+  if (e.target.closest('#rPlay')){ radioToggle(); return; }
+  if (e.target.closest('#rNext')){ radioNext(); return; }
+  if (e.target.closest('#rSlower')){ radioRate(-0.15); return; }
+  if (e.target.closest('#rFaster')){ radioRate(0.15); return; }
+  if (e.target.closest('#rStop')){ radioStop(); return; }
+});
+
+/* ═══════════════ DISTANCE TO AARNAVI ═══════════════ */
+function puneDistance(){
+  var best = 0;
+  mockHist.forEach(function(h){ var n = h.max ? Math.round(h.score / h.max * 200) : h.score; if (n > best) best = n; });
+  var prog = Math.min(1, best / 140);
+  return {km: Math.round(1280 * (1 - prog)), best: best, prog: Math.round(prog * 100)};
+}
+function renderHerDist(){
+  var el = document.getElementById('herDist'); if (!el) return;
+  var d = puneDistance();
+  el.innerHTML =
+    '<div class="dist-track"><i style="width:' + d.prog + '%"></i></div>' +
+    '<div style="display:flex;justify-content:space-between;font-family:var(--mono);font-size:11px;margin-top:6px;flex-wrap:wrap;gap:4px">' +
+    '<span style="color:var(--faint)">Karnal · 1,280 km</span>' +
+    '<span style="color:' + (d.prog >= 100 ? 'var(--green)' : 'var(--blue)') + ';font-weight:700">' + (d.prog >= 100 ? '🎓 SAME CAMPUS — 0 km!' : '↦ ' + d.km + ' km left') + '</span>' +
+    '<span style="color:var(--faint)">Pune · MIT-WPU</span></div>' +
+    '<div style="font-size:11px;color:var(--faint);margin-top:6px">' + (d.best ? 'Best mock ' + d.best + '/200 → ' + d.prog + '% of the way. Hit 140 and the distance hits zero.' : 'Take your first mock to start shrinking the map. 🗺') + '</div>';
+}
+
+/* ═══════════════ REVENGE QUESTIONS ═══════════════ */
+function revengeTargets(){
+  try{ var t = JSON.parse(localStorage.getItem('kv12_revenge') || '[]'); return Array.isArray(t) ? t : []; }catch(e){ return []; }
+}
+function injectRevenge(arr, subjs){
+  var targets = revengeTargets().filter(function(cid){
+    var c = CH_BY_ID[cid];
+    return c && c.mcqs && subjs.indexOf(c.subj) !== -1;
+  });
+  var have = {};
+  arr.forEach(function(p){ have[p.cid] = true; });
+  targets.slice(0, 2).forEach(function(cid){
+    if (have[cid]) return;
+    var c = CH_BY_ID[cid];
+    var pool = shuffle(c.mcqs.map(function(q, qi){ return qi; })).slice(0, 2);
+    pool.forEach(function(qi){ arr.push({cid: cid, qi: qi, d: qDiffOf(cid, qi), rev: true}); });
+  });
+}
+
 /* ═══════════════ EXAM-DAY KIT ═══════════════ */
 const EXAM_KIT = [
   ['admit', '🎫 Admit card — downloaded + 2 printed copies'],
@@ -12562,6 +12764,9 @@ try{ renderHomePulse(); }catch(e){}
 try{ renderHomeGems(); }catch(e){}
 try{ renderHomeNextWeek(); }catch(e){}
 try{ renderWeekStrip(); }catch(e){}
+try{ renderCoach(); }catch(e){}
+try{ radioUI(); }catch(e){}
+try{ renderHerDist(); }catch(e){}
 try{ renderSunday(); }catch(e){}
 try{ renderCsChips(); }catch(e){}
 lockApp();
