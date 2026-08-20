@@ -2302,6 +2302,16 @@ h2.sec::after{content:"";height:1px;flex:1;background:linear-gradient(90deg,rgba
     <div id="statsMockChart"></div>
     <div id="statsMockTable" style="margin-top:10px"></div>
   </div>
+
+  <div class="panel" style="margin-top:14px">
+    <h4 style="margin:0 0 10px">🎯 Score projection <span style="font-family:var(--mono);font-size:10px;color:var(--faint)">your trend → Attempt 1 (15 Dec 2026)</span></h4>
+    <div id="projBody" style="font-size:13px;color:var(--dim)">Take at least 2 mocks — the projection builds itself from your real trend.</div>
+  </div>
+
+  <div class="panel" style="margin-top:14px">
+    <h4 style="margin:0 0 10px">🗓 7-day drill plan <span style="font-family:var(--mono);font-size:10px;color:var(--faint)">auto-built from your weakest chapters</span></h4>
+    <div id="drillBody" style="font-size:13px;color:var(--dim)">Answer more MCQs to unlock your personalized drill plan.</div>
+  </div>
 </section>
 
 <!-- ═══════════ FORMULA SHEET ═══════════ -->
@@ -2582,7 +2592,7 @@ h2.sec::after{content:"";height:1px;flex:1;background:linear-gradient(90deg,rgba
 </main>
 
 <footer>
-  BUILT FOR KARTIKAEY · <b id="ftrVer">BUILD 18-AUG-2026 · v20.1</b> · 16 AUG 2026 → EXAM DAY · PROGRESS SAVED IN YOUR BROWSER<br>
+  BUILT FOR KARTIKAEY · <b id="ftrVer">BUILD 18-AUG-2026 · v20.2</b> · 16 AUG 2026 → EXAM DAY · PROGRESS SAVED IN YOUR BROWSER<br>
   <b>KARTIKAEY'S MISSION · MHT CET 140/200 · MIT-WPU PUNE · CSE (AI &amp; ML)</b><br>
   ⚠ EXAM DATES ARE EXPECTED WINDOWS — ALWAYS CONFIRM ON OFFICIAL NOTICES
 </footer>
@@ -9326,6 +9336,8 @@ function renderStatsPage(){
   renderStatsCompare();
   renderStatsRecords();
   renderStatsMockChart();
+  renderProjection();
+  renderDrillPlan();
 }
 
 /* ── BACKUP ── */
@@ -11595,7 +11607,7 @@ document.addEventListener('click', function(e){
 });
 
 /* ═══════════════ AUTO-UPDATE CHECKER ═══════════════ */
-const APP_VERSION = 'v20.1-2026-08-19';
+const APP_VERSION = 'v20.2-2026-08-19';
 (function(){
   // only when served over http(s) (GitHub Pages) — silent fail on file://
   if (!/^https?:$/.test(location.protocol)) return;
@@ -12207,6 +12219,132 @@ function renderWeekStrip(){
     foot.textContent = '🔥 ' + activeDays + '/7 days active · ' + totalMcq + '/' + g.mcq + ' MCQs this week (' + pct + '%)';
   }
 }
+
+/* ═══════════════ SCORE PROJECTION + DRILL PLANNER ═══════════════ */
+function normScore(h){ return h.max ? Math.round(h.score / h.max * 200) : h.score; }
+function projectScore(){
+  // linear regression over mock history (normalized to 200-scale) → project to exam day
+  var pts = mockHist.map(function(h, i){ return {x: i, y: normScore(h)}; });
+  if (pts.length < 2) return null;
+  var n = pts.length;
+  var sx = 0, sy = 0, sxy = 0, sxx = 0;
+  pts.forEach(function(p){ sx += p.x; sy += p.y; sxy += p.x * p.y; sxx += p.x * p.x; });
+  var denom = n * sxx - sx * sx;
+  if (denom === 0) return null;
+  var slope = (n * sxy - sx * sy) / denom;
+  var intercept = (sy - slope * sx) / n;
+  var last = pts[n - 1];
+  var proj = intercept + slope * (last.x + 1); // one more mock
+  var examX = last.x + Math.max(1, Math.round((CFG.a1 - Date.now()) / 86400000 / 7)); // ~weeks of mocks left
+  var examProj = Math.min(200, Math.max(0, Math.round(intercept + slope * examX)));
+  return {slope: slope, last: Math.round(last.y), proj: Math.round(proj), examProj: examProj, count: n};
+}
+function hoursTo140(){
+  var pr = projectScore();
+  if (!pr) return null;
+  var gap = Math.max(0, 140 - pr.examProj);
+  if (gap === 0) return 0;
+  // each full mock + review ≈ 4h; slope = marks gained per mock
+  var perMock = Math.max(0.1, pr.slope);
+  var mocksNeeded = Math.ceil(gap / perMock);
+  return mocksNeeded * 4;
+}
+function renderProjection(){
+  var el = document.getElementById('projBody'); if (!el) return;
+  var pr = projectScore();
+  if (!pr){ el.innerHTML = '<div style="font-size:12.5px;color:var(--faint)">Take at least 2 mocks — the projection builds itself from your real trend.</div>'; return; }
+  var hrs = hoursTo140();
+  var trend = pr.slope >= 0 ? '<span style="color:var(--green)">📈 rising ' + pr.slope.toFixed(1) + ' marks per mock</span>' : '<span style="color:var(--red)">📉 falling ' + Math.abs(pr.slope).toFixed(1) + ' marks per mock — review the autopsy + error book</span>';
+  var flag = pr.examProj >= 140 ? '<span style="color:var(--green)">🎯 ON TRACK for 140+</span>' : '<span style="color:var(--amber)">⚠ below 140 — drill plan below will close the gap</span>';
+  el.innerHTML =
+    '<div class="ins-cards" style="margin-top:8px">' +
+    '<div class="ins-card"><div class="v">' + pr.last + '/200</div><div class="k">latest mock</div></div>' +
+    '<div class="ins-card"><div class="v">' + pr.proj + '/200</div><div class="k">next mock (est)</div></div>' +
+    '<div class="ins-card"><div class="v">' + pr.examProj + '/200</div><div class="k">projected at exam</div></div>' +
+    '<div class="ins-card"><div class="v">' + (hrs === 0 ? '✓' : (hrs + 'h')) + '</div><div class="k">est. to hit 140</div></div>' +
+    '</div>' +
+    '<div class="proj-line">' + trend + ' · ' + flag + '</div>' +
+    '<div style="font-size:11px;color:var(--faint);margin-top:8px">Based on your last ' + pr.count + ' mock(s) — the projection gets sharper with every mock you take. One full mock + autopsy review ≈ 4 hours.</div>';
+}
+function drillPlan(){
+  // weakest chapters by accuracy (min 3 attempts), rank across subjects
+  var per = {};
+  Object.keys(mcqState).forEach(function(k){
+    var parts = k.split(':');
+    var c = CH_BY_ID[parts[0]]; if (!c || !c.mcqs || !c.mcqs[parseInt(parts[1], 10)]) return;
+    var ok = mcqState[k] === c.mcqs[parseInt(parts[1], 10)].a ? 1 : 0;
+    if (!per[c.id]) per[c.id] = {t: 0, c: 0, subj: c.subj};
+    per[c.id].t++; per[c.id].c += ok;
+  });
+  var rows = Object.keys(per).map(function(id){
+    var r = per[id];
+    return {id: id, subj: r.subj, t: r.t, acc: Math.round(100 * r.c / r.t)};
+  }).filter(function(r){ return r.t >= 3; }).sort(function(a, b){ return a.acc - b.acc || b.t - a.t; });
+  return rows;
+}
+function renderDrillPlan(){
+  var el = document.getElementById('drillBody'); if (!el) return;
+  var rows = drillPlan();
+  if (!rows.length){
+    el.innerHTML = '<div style="font-size:12.5px;color:var(--faint)">Answer at least 3 questions per chapter and your weakest chapters become a 7-day drill plan here.</div>';
+    return;
+  }
+  var plan = LS.get('kv_drillplan', null);
+  var todayKey = studyDayKey();
+  if (!plan || plan.gen !== todayKey){
+    // build 7-day plan from weakest chapters (rotate subjects)
+    var subjOrder = ['P','C','M'].filter(function(s){ return rows.some(function(r){ return r.subj === s; }); });
+    var pool = rows.slice(0, 12);
+    var days = [];
+    for (var d = 0; d < 7; d++){
+      var subj = subjOrder[d % subjOrder.length];
+      var pick = pool.filter(function(r){ return r.subj === subj && !days.some(function(x){ return x.id === r.id; }); });
+      if (!pick.length) pick = pool.filter(function(r){ return r.subj === subj; });
+      if (pick.length) days.push(pick[0]);
+      else { // fallback: any remaining weakest
+        var any = pool.filter(function(r){ return !days.some(function(x){ return x.id === r.id; }); });
+        days.push(any.length ? any[0] : pool[0]);
+      }
+    }
+    plan = {gen: todayKey, days: days.map(function(r){ return {id: r.id, acc: r.acc}; }), done: {}};
+    LS.set('kv_drillplan', plan);
+  }
+  var DAYN = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  var base = weekMonday();
+  var html = '<div class="drill-days">' + plan.days.map(function(d, i){
+    var dd = new Date(base); dd.setDate(base.getDate() + i);
+    var isToday = ymd(dd) === todayKey;
+    var isDone = plan.done[i] === true;
+    var past = dd < new Date(studyDayDate());
+    return '<div class="drill-day ' + (isToday ? 'today' : '') + (isDone ? ' done' : '') + (past && !isDone ? ' missed' : '') + '">' +
+      '<div class="dd-top"><span class="dd-name">' + DAYN[i] + '</span>' +
+      '<label class="chk" style="margin-left:auto"><input type="checkbox" data-dd="' + i + '" ' + (isDone ? 'checked' : '') + '><i class="box">✓</i><span style="font-size:10.5px">done</span></label></div>' +
+      '<button class="btn small dd-go" data-ddgo="' + d.id + '">' + d.id + ' · ' + CH_BY_ID[d.id].name + ' <span style="color:var(--faint)">(' + d.acc + '%)</span></button>' +
+      '<div style="font-size:10px;color:var(--faint);margin-top:4px">' + (isDone ? '✅ drilled' : (past ? '⚠ missed' : '20-Q drill + error review')) + '</div>' +
+      '</div>';
+  }).join('') + '</div>' +
+  '<div style="font-size:11px;color:var(--faint);margin-top:10px">Auto-built from your weakest chapters. Tap a chapter to drill it now · regenerates each study day.</div>';
+  el.innerHTML = html;
+}
+document.addEventListener('click', function(e){
+  var dg = e.target.closest('[data-ddgo]');
+  if (dg){
+    switchTab('practice');
+    try{ openMcqTest(dg.dataset.ddgo); }catch(err){}
+    toast('🎯 Drill: ' + CH_BY_ID[dg.dataset.ddgo].name);
+    return;
+  }
+});
+document.addEventListener('change', function(e){
+  var dd = e.target.closest('[data-dd]');
+  if (dd){
+    var plan = LS.get('kv_drillplan', null);
+    if (!plan) return;
+    plan.done[dd.dataset.dd] = dd.checked;
+    LS.set('kv_drillplan', plan);
+    renderDrillPlan();
+  }
+});
 
 /* ═══════════════ HOME FILLERS (daily gems · next week) ═══════════════ */
 var __fpool = null;
