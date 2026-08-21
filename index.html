@@ -2709,7 +2709,7 @@ h2.sec::after{content:"";height:1px;flex:1;background:linear-gradient(90deg,rgba
 </main>
 
 <footer>
-  BUILT FOR KARTIKAEY · <b id="ftrVer">BUILD 18-AUG-2026 · v20.7</b> · 16 AUG 2026 → EXAM DAY · PROGRESS SAVED IN YOUR BROWSER<br>
+  BUILT FOR KARTIKAEY · <b id="ftrVer">BUILD 18-AUG-2026 · v20.8</b> · 16 AUG 2026 → EXAM DAY · PROGRESS SAVED IN YOUR BROWSER<br>
   <b>KARTIKAEY'S MISSION · MHT CET 140/200 · MIT-WPU PUNE · CSE (AI &amp; ML)</b><br>
   ⚠ EXAM DATES ARE EXPECTED WINDOWS — ALWAYS CONFIRM ON OFFICIAL NOTICES
 </footer>
@@ -11816,7 +11816,7 @@ document.addEventListener('click', function(e){
 });
 
 /* ═══════════════ AUTO-UPDATE CHECKER ═══════════════ */
-const APP_VERSION = 'v20.7-2026-08-19';
+const APP_VERSION = 'v20.8-2026-08-19';
 (function(){
   // only when served over http(s) (GitHub Pages) — silent fail on file://
   if (!/^https?:$/.test(location.protocol)) return;
@@ -12172,7 +12172,17 @@ function printDoc(title, bodyHtml){
   try{ w = window.open('', '_blank'); }catch(e){ w = null; }
   if (!w){ toast('Pop-up blocked — allow pop-ups to print'); return; }
   w.document.write('<!doctype html><html><head><meta charset="utf-8"><title>' + title + '</title>' +
-    '<style>body{font-family:Segoe UI,Arial,sans-serif;font-size:12px;color:#111;padding:24px;line-height:1.5}h1{font-size:18px;border-bottom:2px solid #333;padding-bottom:6px}h2{font-size:14px;margin:16px 0 4px;color:#1a4fa0}h3{font-size:12px;margin:10px 0 2px}.f{font-family:Consolas,monospace;background:#f4f4f4;padding:1px 4px;border-radius:3px}li{margin:2px 0}@media print{body{padding:8px}}</style></head><body>' + bodyHtml + '</body></html>');
+    '<style>' +
+    'body{font-family:Segoe UI,Arial,sans-serif;font-size:12px;color:#e6edf3;padding:24px;line-height:1.5;background:#0d1117}' +
+    'h1{font-size:18px;border-bottom:2px solid #30363d;padding-bottom:6px;color:#e6edf3}' +
+    'h2{font-size:14px;margin:16px 0 4px;color:#4da3ff}' +
+    'h3{font-size:12px;margin:10px 0 2px;color:#bc8cff}' +
+    '.f{font-family:Consolas,monospace;background:#161b22;padding:1px 6px;border-radius:4px;color:#7ee08a;border:1px solid #30363d}' +
+    'li{margin:2px 0}' +
+    'span{color:inherit}' +
+    'a{color:#4da3ff}' +
+    '@media print{body{padding:8px;background:#fff;color:#111}h1{color:#111;border-color:#333}h2{color:#1a4fa0}h3{color:#333}.f{background:#f4f4f4;color:#111;border-color:#ccc}}' +
+    '</style></head><body>' + bodyHtml + '</body></html>');
   w.document.close();
   w.focus();
   setTimeout(function(){ try{ w.print(); }catch(e){} }, 350);
